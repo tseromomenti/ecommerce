@@ -1,11 +1,25 @@
 {
   "profiles": {
-    "InventoryService.Hosting": {
+    "Local": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true
+      }
+    },
+    "Staging": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Staging"
+      }
+    },
+    "Production": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Production"
+      }
     },
     "Container (Dockerfile)": {
       "commandName": "Docker"

@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-InventoryService.Hosting-8794c0f4-6e3d-4e77-8641-13d79aba9d09</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <Configurations>Debug;Release;Staging;Production</Configurations>
+    <Configurations>Debug;Release;Staging;Production;Development</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

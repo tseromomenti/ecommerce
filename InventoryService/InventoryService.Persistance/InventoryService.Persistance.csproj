@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <Configurations>Debug;Release;Staging;Production</Configurations>
+    <Configurations>Debug;Release;Staging;Production;Development</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

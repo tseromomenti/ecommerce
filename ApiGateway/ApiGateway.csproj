@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>2df56f23-908c-48af-b743-1d6c2903bb44</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <Configurations>Debug;Release;Staging;Production</Configurations>
+    <Configurations>Debug;Release;Staging;Production;Development</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
