@@ -2,17 +2,25 @@ using InventoryService.Business.Extensions;
 using InventoryService.Business.Interfaces;
 using InventoryService.Persistance.Extensions;
 using InventoryService.Persistance.Infrastructure;
+using InventoryService.Embedding.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistance(builder);
 builder.Services.AddBusinessServices(builder);
+builder.Services.AddEmbeddingLayer(builder);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//builder.Services.AddQdrantVectorStore("localhost");
+
+builder.Services.AddOllamaEmbeddingGenerator("gpt-oss:20b", new Uri("http://localhost:11434"));
 
 var app = builder.Build();
 
@@ -44,5 +52,13 @@ app.MapGet("/GetAllProducts", async (IInventoryManagementService inventoryServic
     var products = await inventoryService.GetAllProductsAsync();
     return Results.Ok(products);
 });
+app.MapGet("ChatAi", async (IChatCompletionService chatCompletion) => {
+    var history = "Why is sky blue";
+
+    var result = await chatCompletion.GetChatMessageContentsAsync(history);
+    return Results.Ok(result);
+});
+
+
 
 app.Run();

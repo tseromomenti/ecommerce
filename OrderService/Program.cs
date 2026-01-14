@@ -25,31 +25,57 @@ namespace OrderService
 
             Console.WriteLine("Using environment: {0}", builder.Environment.EnvironmentName);
             Console.WriteLine("Connection Strings: DB: {0}, Messages: {1}", builder.Configuration.GetConnectionString("DbConnection"), builder.Configuration.GetConnectionString("MessageBrokerConnection"));
-
-            builder.Services.AddDbContext<OrderDbContext>(options =>
+            
+            if (builder.Environment.IsDevelopment())
             {
-                options.UseAzureSql(builder.Configuration.GetConnectionString("DbConnection"));
-            });
+                // Local Development - Use SQL Server and RabbitMQ (via Docker/Local)
+                builder.Services.AddDbContext<OrderDbContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
-            builder.Services.AddMassTransit(x =>
-            {
-                x.UsingAzureServiceBus((context, cfg) =>
+                builder.Services.AddMassTransit(x =>
                 {
-                    cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
+                    x.UsingRabbitMq((context, cfg) =>
+                    {
+                        var connectionString = builder.Configuration.GetConnectionString("MessageBrokerConnection");
+                        // Assuming simple host string or amqp URI. RabbitMq transport config might need parsing if just a host is passed vs connection string.
+                        // Ideally we pass host, username, password. 
+                        // For simplicity in this fix, we assume the config has what is needed or we default to localhost if not compliant.
+                        // Actually, connection string "amqp://..." works with MassTransit Host() if parsed. 
+                        // Let's use standard Host configuration.
+                        cfg.Host(connectionString);
+                        cfg.ConfigureEndpoints(context);
+                    });
                 });
-            });
-
-            builder.Host.UseSerilog((context, lc) =>
+            }
+            else if (builder.Environment.IsStaging() || builder.Environment.IsProduction())
             {
-                lc.ReadFrom.Configuration(context.Configuration)
-                .Enrich.FromLogContext()
-                .Enrich.WithExceptionDetails()
-                .Enrich.WithProperty("ServiceName", "OrderService")
-                .WriteTo.Console();
-            });
+                // Staging and Production - Use Azure SQL and Azure Service Bus
+                builder.Services.AddDbContext<OrderDbContext>(options =>
+                {
+                    options.UseAzureSql(builder.Configuration.GetConnectionString("DbConnection"));
+                });
 
-            builder.Services.AddApplicationInsightsTelemetry();
+                builder.Services.AddMassTransit(x =>
+                {
+                    x.UsingAzureServiceBus((context, cfg) =>
+                    {
+                        cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
+                        cfg.ConfigureEndpoints(context);
+                    });
+                });
 
+                builder.Host.UseSerilog((context, lc) =>
+                {
+                    lc.ReadFrom.Configuration(context.Configuration)
+                    .Enrich.FromLogContext()
+                    .Enrich.WithExceptionDetails()
+                    .Enrich.WithProperty("ServiceName", "OrderService")
+                    .WriteTo.Console();
+                });
+
+                builder.Services.AddApplicationInsightsTelemetry();
+            }
+            
             builder.Services.AddTransient<IValidator<OrderRequest>, OrderRequestValidator>();
             builder.Services.AddScoped<IOrderProducer, OrderProducer>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();

@@ -19,7 +19,14 @@ namespace InventoryService.Persistance.Extensions
             // Register DbContext for SQL Server
             services.AddDbContext<InventoryDbContext>(options =>
             {
-                options.UseAzureSql(builder.Configuration.GetConnectionString("DbConnection"));
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
+                }
+                else
+                {
+                    options.UseAzureSql(builder.Configuration.GetConnectionString("DbConnection"));
+                }
             });
 
             // Register repositories

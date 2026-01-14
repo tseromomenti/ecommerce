@@ -19,27 +19,41 @@ namespace InventoryService.Hosting
 
             builder.Services.AddPersistance(builder);
 
-            builder.Services.AddHostedService<Worker>();
-
             builder.Logging.AddSerilog();
 
             builder.Services.AddMassTransit(x =>
             {
                 x.AddConsumer<OrderConsumer>();
-                x.UsingAzureServiceBus((context, cfg) =>
+
+                if (builder.Environment.IsDevelopment())
                 {
-                    cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
-                    cfg.ReceiveEndpoint("order-queue", e =>
+                    x.UsingRabbitMq((context, cfg) =>
                     {
-                        e.ConfigureConsumer<OrderConsumer>(context);
+                        cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
+                        cfg.ReceiveEndpoint("order-queue", e =>
+                        {
+                            e.ConfigureConsumer<OrderConsumer>(context);
+                        });
                     });
-                });
+                }
+                else
+                {
+                    x.UsingAzureServiceBus((context, cfg) =>
+                    {
+                        cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
+                        cfg.ReceiveEndpoint("orders", e =>
+                        {
+                            e.ConfigureConsumer<OrderConsumer>(context);
+                        });
+                    });
+                }
             });
 
+            builder.Services.AddApplicationInsightsTelemetryWorkerService();
+
             var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.Seq("https://seq:5341")
                 .CreateLogger();
 
             builder.Logging.AddSerilog(logger);

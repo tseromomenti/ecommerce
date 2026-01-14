@@ -16,7 +16,7 @@ WORKDIR /src
 COPY ["InventoryService/InventoryService.Api/InventoryService.Api.csproj", "InventoryService.Api/"]
 COPY ["InventoryService/InventoryService.Business/InventoryService.Business.csproj", "InventoryService.Business/"]
 COPY ["InventoryService/InventoryService.Persistance/InventoryService.Persistance.csproj", "InventoryService.Persistance/"]
-COPY ["Ecommerce.Library/Ecommerce.Library.csproj", "Ecommerce.Library/"]
+COPY ["./Ecommerce.Library/Ecommerce.Library.csproj", "Ecommerce.Library/"]
 
 # Restore dependencies
 RUN dotnet restore "InventoryService.Api/InventoryService.Api.csproj"
