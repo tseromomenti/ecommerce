@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistance(builder);
 builder.Services.AddBusinessServices(builder);
-builder.Services.AddEmbeddingLayer(builder);
+builder.Services.AddEmbeddingServices(builder);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
