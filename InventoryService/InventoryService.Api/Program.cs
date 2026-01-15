@@ -3,8 +3,8 @@ using InventoryService.Business.Interfaces;
 using InventoryService.Persistance.Extensions;
 using InventoryService.Persistance.Infrastructure;
 using InventoryService.Embedding.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,8 +19,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //builder.Services.AddQdrantVectorStore("localhost");
-
-builder.Services.AddOllamaEmbeddingGenerator("gpt-oss:20b", new Uri("http://localhost:11434"));
 
 var app = builder.Build();
 

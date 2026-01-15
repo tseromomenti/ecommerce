@@ -14,7 +14,6 @@
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.68.0-alpha" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.68.0-preview" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-    <PackageReference Include="OllamaSharp" Version="5.4.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 

@@ -7,5 +7,4 @@ obj/
 *.log
 *.DS_Store
 docker-compose.override.yml
-appsettings.Development.json
 secrets.json
