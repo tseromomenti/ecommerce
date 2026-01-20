@@ -16,12 +16,24 @@ namespace ApiGateway
 
             builder.Services.AddHealthChecks();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular", policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             builder.Host.UseSerilog((context, configuration) =>
                 configuration.ReadFrom.Configuration(context.Configuration));
 
             builder.Host.UseSerilog();
 
             var app = builder.Build();
+
+            app.UseCors("AllowAngular");
 
             app.MapReverseProxy();
 

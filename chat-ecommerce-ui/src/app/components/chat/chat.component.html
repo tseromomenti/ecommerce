@@ -1,0 +1,50 @@
+<div class="chat-container">
+  <div class="chat-header">
+    🛍️ AI Shopping Assistant
+  </div>
+  
+  <div class="chat-messages" #messagesContainer>
+    @for (message of messages; track $index) {
+      <div class="message" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
+        <div class="message-content">{{ message.content }}</div>
+      </div>
+      @if (message.type === 'products' && message.data) {
+        <div class="product-grid">
+          @for (product of message.data; track product.id) {
+            <app-product-card [product]="product" (buyClicked)="onBuyProduct($event)"></app-product-card>
+          }
+        </div>
+      }
+    }
+    @if (isLoading) {
+      <div class="message assistant">
+        <div class="message-content loading">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="chat-input-container">
+    <input 
+      type="text" 
+      class="chat-input" 
+      [(ngModel)]="userInput"
+      (keypress)="onKeyPress($event)"
+      placeholder="Search for products..."
+      [disabled]="isLoading"
+    >
+    <button class="send-button" (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
+      {{ isLoading ? '...' : 'Send' }}
+    </button>
+  </div>
+</div>
+
+<app-order-modal 
+  [product]="selectedProduct" 
+  [isVisible]="showOrderModal"
+  (close)="onCloseModal()"
+  (confirm)="onConfirmOrder($event)">
+</app-order-modal>

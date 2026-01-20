@@ -1,0 +1,10 @@
+<div class="product-card">
+  <div class="product-name">{{ product.productName }}</div>
+  <div class="product-price">\${{ product.price.toFixed(2) }}</div>
+  <div class="product-stock" [class.out-of-stock]="product.availableStock === 0">
+    {{ product.availableStock > 0 ? product.availableStock + ' in stock' : 'Out of stock' }}
+  </div>
+  <button class="buy-button" (click)="onBuyClick()" [disabled]="product.availableStock === 0">
+    {{ product.availableStock > 0 ? 'Buy Now' : 'Out of Stock' }}
+  </button>
+</div>

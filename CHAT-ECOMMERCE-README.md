@@ -6,11 +6,17 @@ This is a ChatGPT-style e-commerce interface where users interact through a chat
 ## Architecture
 
 ### Services
-1. **ChatBotService** (Port 5000) - Chat UI and orchestration
-2. **InventoryService.Api** (Port 5001) - Product inventory and search
-3. **OrderService** (Port 5002) - Order processing
+| Service | Port | Description |
+|---------|------|-------------|
+| **ApiGateway** | 5095 | API Gateway with YARP reverse proxy |
+| **ChatBotService** | 5021 | Chat API orchestration |
+| **InventoryService.Api** | 5068 | Product inventory and search |
+| **OrderService** | 5123 | Order processing |
+| **Angular UI** | 4200 | Frontend application |
 
 ### Key Features
+- ✅ **Angular Frontend** - Modern SPA with ChatGPT-style interface
+- ✅ **API Gateway** - YARP-based reverse proxy for all services
 - ✅ **Chat-only interface** - No browsing, just type what you need
 - ✅ **Smart product search** - Finds products based on user queries
 - ✅ **Product cards** - Results displayed as interactive cards
@@ -22,6 +28,7 @@ This is a ChatGPT-style e-commerce interface where users interact through a chat
 
 ### Prerequisites
 - .NET 10.0 SDK
+<<<<<<< Updated upstream
 - SQL Server (for inventory/orders)
 - Ollama (optional, for future semantic search)
 - Qdrant (optional, for vector search)
@@ -51,11 +58,71 @@ Service will start on `http://localhost:5000`
 
 4. **Open the chat interface:**
 Navigate to `http://localhost:5000` in your browser
+=======
+- Node.js 18+ with npm
+- SQL Server (for inventory/orders)
+- Angular CLI (`npm install -g @angular/cli`)
+
+### Option 1: Run All Services (PowerShell Script)
+```powershell
+.\start-all-services.ps1
+```
+Then in another terminal:
+```powershell
+cd chat-ecommerce-ui
+npm start
+```
+
+### Option 2: VS Code Launch Configuration
+1. Open the project in VS Code
+2. Go to Run and Debug (Ctrl+Shift+D)
+3. Select "Launch All Services" compound configuration
+4. Press F5
+5. Start Angular separately: `cd chat-ecommerce-ui && npm start`
+
+### Option 3: Manual Start
+1. **Start API Gateway:**
+```powershell
+cd ApiGateway
+dotnet run --urls http://localhost:5095
+```
+
+2. **Start InventoryService:**
+```powershell
+cd InventoryService\InventoryService.Api
+dotnet run --urls http://localhost:5068
+```
+
+3. **Start OrderService:**
+```powershell
+cd OrderService
+dotnet run --urls http://localhost:5123
+```
+
+4. **Start ChatBotService:**
+```powershell
+cd ChatBotService
+dotnet run --urls http://localhost:5021
+```
+
+5. **Start Angular Frontend:**
+```powershell
+cd chat-ecommerce-ui
+npm start
+```
+
+6. **Open the application:**
+Navigate to `http://localhost:4200` in your browser
+>>>>>>> Stashed changes
 
 ## Usage
 
 ### Customer Flow
+<<<<<<< Updated upstream
 1. **Open the chat interface** - Clean ChatGPT-style UI
+=======
+1. **Open the Angular app** - Clean ChatGPT-style UI at http://localhost:4200
+>>>>>>> Stashed changes
 2. **Type what you're looking for** - e.g., "wireless mouse", "gaming keyboard"
 3. **View product results** - Cards with price, stock, and details
 4. **Click "Buy Now"** - Select quantity and confirm order

@@ -1,0 +1,77 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Launch All Services",
+      "configurations": [
+        "ApiGateway",
+        "InventoryService.Api",
+        "OrderService",
+        "ChatBotService"
+      ],
+      "stopAll": true
+    }
+  ],
+  "configurations": [
+    {
+      "name": "ApiGateway",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-apigateway",
+      "program": "${workspaceFolder}/ApiGateway/bin/Debug/net10.0/ApiGateway.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/ApiGateway",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5095"
+      }
+    },
+    {
+      "name": "InventoryService.Api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-inventory",
+      "program": "${workspaceFolder}/InventoryService/InventoryService.Api/bin/Debug/net10.0/InventoryService.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/InventoryService/InventoryService.Api",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5068"
+      }
+    },
+    {
+      "name": "OrderService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-order",
+      "program": "${workspaceFolder}/OrderService/bin/Debug/net10.0/OrderService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/OrderService",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5123"
+      }
+    },
+    {
+      "name": "ChatBotService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-chat",
+      "program": "${workspaceFolder}/ChatBotService/bin/Debug/net10.0/ChatBotService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/ChatBotService",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5021"
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-all",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-apigateway",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "ApiGateway/ApiGateway.csproj"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-inventory",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "InventoryService/InventoryService.Api/InventoryService.Api.csproj"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-order",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "OrderService/OrderService.csproj"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-chat",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "ChatBotService/ChatBotService.csproj"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "start-angular",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/chat-ecommerce-ui"
+      },
+      "group": "none",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

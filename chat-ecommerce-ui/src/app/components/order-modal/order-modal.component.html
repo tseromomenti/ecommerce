@@ -1,0 +1,19 @@
+@if (isVisible && product) {
+<div class="modal">
+  <div class="modal-content">
+    <div class="modal-header">{{ product.productName }}</div>
+    <p class="modal-info">Price: \${{ product.price.toFixed(2) }} | Available: {{ product.availableStock }}</p>
+    <input 
+      type="number" 
+      class="quantity-input" 
+      [(ngModel)]="quantity" 
+      [min]="1" 
+      [max]="product.availableStock"
+    >
+    <div class="modal-buttons">
+      <button class="modal-button secondary" (click)="onClose()">Cancel</button>
+      <button class="modal-button primary" (click)="onConfirm()">Confirm Order</button>
+    </div>
+  </div>
+</div>
+}
