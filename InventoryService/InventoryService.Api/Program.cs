@@ -50,6 +50,13 @@ app.MapGet("/GetAllProducts", async (IInventoryManagementService inventoryServic
     var products = await inventoryService.GetAllProductsAsync();
     return Results.Ok(products);
 });
+
+app.MapGet("/SearchProducts", async (string query, IProductSearchService searchService) =>
+{
+    var results = await searchService.SearchProductsAsync(query);
+    return Results.Ok(results);
+});
+
 app.MapGet("ChatAi", async (IChatCompletionService chatCompletion) => {
     var history = "Why is sky blue";
 

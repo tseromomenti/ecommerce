@@ -15,6 +15,7 @@ namespace InventoryService.Business.Extensions
         public static IServiceCollection AddBusinessServices(this IServiceCollection services, IHostApplicationBuilder builder)
         {
             services.AddScoped<IInventoryManagementService, InventoryManagementService>();
+            services.AddScoped<IProductSearchService, ProductSearchService>();
 
             return services;
         }

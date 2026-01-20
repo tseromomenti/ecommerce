@@ -13,7 +13,8 @@ namespace InventoryService.Embedding.Extensions
         public static IServiceCollection AddEmbeddingServices(this IServiceCollection services, IHostApplicationBuilder builder)
         {
             builder.Services.AddOllamaChatCompletion("gpt-oss:20b", new Uri("http://localhost:11434"));
-            // Implementation for adding embedding services
+            builder.Services.AddOllamaEmbeddingGenerator("nomic-embed-text", new Uri("http://localhost:11434"));
+            builder.Services.AddQdrantVectorStore("localhost");
 
             return services;
         }
