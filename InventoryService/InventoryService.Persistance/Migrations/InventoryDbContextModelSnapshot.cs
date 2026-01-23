@@ -22,7 +22,7 @@ namespace InventoryService.Persistance.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("InventoryService.Persistance.Dtos.ProductDto", b =>
+            modelBuilder.Entity("InventoryService.Persistance.Dtos.ProductEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
