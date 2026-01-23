@@ -18,8 +18,6 @@ builder.Services.AddEmbeddingServices(builder);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddQdrantVectorStore("localhost");
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -30,6 +28,18 @@ using (var scope = app.Services.CreateScope())
         dbContext.Database.Migrate();
     }
     InventoryDataSeeder.Seed(dbContext);
+
+    // Index products into Qdrant on startup
+    try
+    {
+        var vectorSearchService = scope.ServiceProvider.GetRequiredService<IVectorSearchService>();
+        await vectorSearchService.IndexAllProductsAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "Failed to index products on startup. Vector search may not work until products are indexed.");
+    }
 }
 
 
@@ -51,11 +61,32 @@ app.MapGet("/GetAllProducts", async (IInventoryManagementService inventoryServic
     return Results.Ok(products);
 });
 
-app.MapGet("/SearchProducts", async (string query, IProductSearchService searchService) =>
+// Hybrid search endpoint (combines keyword + semantic search)
+app.MapGet("/SearchProducts", async (string query, int? maxResults, IProductSearchService searchService) =>
 {
-    var results = await searchService.SearchProductsAsync(query);
+    var results = await searchService.SearchProductsAsync(query, maxResults ?? 10);
     return Results.Ok(results);
-});
+})
+.WithName("SearchProducts")
+.WithDescription("Hybrid search combining keyword matching and semantic vector search");
+
+// Semantic-only search endpoint
+app.MapGet("/SemanticSearch", async (string query, int? maxResults, IVectorSearchService vectorSearchService) =>
+{
+    var results = await vectorSearchService.SemanticSearchAsync(query, maxResults ?? 10);
+    return Results.Ok(results);
+})
+.WithName("SemanticSearch")
+.WithDescription("Pure semantic search using vector embeddings");
+
+// Reindex products endpoint (useful for manual reindexing)
+app.MapPost("/IndexProducts", async (IVectorSearchService vectorSearchService) =>
+{
+    await vectorSearchService.IndexAllProductsAsync();
+    return Results.Ok(new { message = "Products indexed successfully" });
+})
+.WithName("IndexProducts")
+.WithDescription("Reindex all products into the vector store");
 
 app.MapGet("ChatAi", async (IChatCompletionService chatCompletion) => {
     var history = "Why is sky blue";

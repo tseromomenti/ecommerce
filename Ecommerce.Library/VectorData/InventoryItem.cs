@@ -13,12 +13,21 @@ namespace Ecommerce.Library.VectorData
         public ulong ItemId { get; set; }
 
         [VectorStoreData(IsIndexed = true, StorageName = "item_name")]
-        public string ItemName { get; set; }
+        public string ItemName { get; set; } = string.Empty;
+
+        [VectorStoreData(IsIndexed = true, StorageName = "description")]
+        public string Description { get; set; } = string.Empty;
 
         [VectorStoreData(IsIndexed = true, StorageName = "price")]
-        public decimal Price { get; set; }
+        public int Price { get; set; }
 
-        [VectorStoreVector(4, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw, StorageName = "item_description_embedding")]
-        public ReadOnlyMemory<float>? ItemDescriptionEmbedding { get; set; }
+        [VectorStoreData(IsIndexed = true, StorageName = "available_stock")]
+        public int AvailableStock { get; set; }
+
+        /// <summary>
+        /// 768 dimensions for nomic-embed-text model
+        /// </summary>
+        [VectorStoreVector(768, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw, StorageName = "item_embedding")]
+        public ReadOnlyMemory<float>? ItemEmbedding { get; set; }
     }
 }

@@ -18,12 +18,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\InventoryService.Business\InventoryService.Business.csproj" />
+    <ProjectReference Include="..\InventoryService.Embedding\InventoryService.Embedding.csproj" />
     <ProjectReference Include="..\InventoryService.Persistance\InventoryService.Persistance.csproj" />
   </ItemGroup>
 </Project>

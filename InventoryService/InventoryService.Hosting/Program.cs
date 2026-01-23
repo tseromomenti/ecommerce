@@ -2,6 +2,7 @@ using InventoryService.Business.Extensions;
 using InventoryService.Hosting.RabbitMQ;
 using InventoryService.Persistance.Extensions;
 using InventoryService.Persistance.Infrastructure;
+using InventoryService.Embedding.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -16,7 +17,7 @@ namespace InventoryService.Hosting
 
             // Register business services
             builder.Services.AddBusinessServices(builder);
-
+            builder.Services.AddEmbeddingServices(builder);
             builder.Services.AddPersistance(builder);
 
             builder.Logging.AddSerilog();
