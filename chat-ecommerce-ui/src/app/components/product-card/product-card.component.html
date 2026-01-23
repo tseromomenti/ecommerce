@@ -1,10 +1,19 @@
 <div class="product-card">
-  <div class="product-name">{{ product.productName }}</div>
-  <div class="product-price">\${{ product.price.toFixed(2) }}</div>
-  <div class="product-stock" [class.out-of-stock]="product.availableStock === 0">
-    {{ product.availableStock > 0 ? product.availableStock + ' in stock' : 'Out of stock' }}
+  <img class="thumbnail" [src]="getImageUrl(product)" [alt]="product.productName">
+  <div class="details">
+    <div class="product-name">{{ product.productName }}</div>
+    <div class="meta">
+      <div class="product-price">${{ product.price.toFixed(2) }}</div>
+      <div class="rating">★ 4.6</div>
+    </div>
+    <div class="badge" [class.out-of-stock]="product.availableStock === 0">
+      {{ product.availableStock > 0 ? 'Free shipping' : 'Out of stock' }}
+    </div>
+    <div class="actions">
+      <button class="primary" (click)="onBuyClick()" [disabled]="product.availableStock === 0">
+        {{ product.availableStock > 0 ? 'Add to cart' : 'Out of stock' }}
+      </button>
+      <button class="ghost" type="button">Details</button>
+    </div>
   </div>
-  <button class="buy-button" (click)="onBuyClick()" [disabled]="product.availableStock === 0">
-    {{ product.availableStock > 0 ? 'Buy Now' : 'Out of Stock' }}
-  </button>
 </div>

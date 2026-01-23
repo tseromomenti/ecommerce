@@ -11,7 +11,11 @@ namespace InventoryService.Persistance.Infrastructure
         public PersistenceMappingProfile()
         {
             // Entity to DTO mappings for SQL Server persistence
-            CreateMap<ProductDto, ProductEntity>().ReverseMap();
+            CreateMap<ProductDto, ProductEntity>().ReverseMap()
+                .AfterMap((src, dest) =>
+                {
+                    dest.ImageUrl = ProductImageResolver.GetImageUrl(src.ProductName);
+                });
 
             // Entity to Document mappings for MongoDB persistence
             CreateMap<InventoryMovementDto, OrderDocumentEntity>()

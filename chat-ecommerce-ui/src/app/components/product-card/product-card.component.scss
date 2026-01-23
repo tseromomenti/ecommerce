@@ -1,58 +1,101 @@
 .product-card {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  background: #fff;
+  border: 1px solid #ededed;
+  border-radius: 16px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
   }
+}
 
-  .product-name {
-    font-weight: 600;
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 8px;
+.thumbnail {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  background: #f2f2f2;
+  object-fit: cover;
+  border: 1px solid #ededed;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-price {
+  font-weight: 600;
+  color: #111;
+  font-size: 15px;
+}
+
+.rating {
+  font-size: 12px;
+  color: #777;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f4f4f4;
+  font-size: 11px;
+  color: #555;
+
+  &.out-of-stock {
+    background: #ffe9e9;
+    color: #c0392b;
   }
+}
 
-  .product-price {
-    color: #667eea;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 8px;
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.primary {
+  flex: 1;
+  border: none;
+  background: #111;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
+}
 
-  .product-stock {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 12px;
-
-    &.out-of-stock {
-      color: #e74c3c;
-    }
-  }
-
-  .buy-button {
-    width: 100%;
-    padding: 10px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: opacity 0.2s;
-
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
+.ghost {
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  color: #111;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
 }

@@ -1,49 +1,119 @@
-<div class="chat-container">
-  <div class="chat-header">
-    🛍️ AI Shopping Assistant
-  </div>
-  
-  <div class="chat-messages" #messagesContainer>
-    @for (message of messages; track $index) {
-      <div class="message" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
-        <div class="message-content">{{ message.content }}</div>
-      </div>
-      @if (message.type === 'products' && message.data) {
-        <div class="product-grid">
-          @for (product of message.data; track product.id) {
-            <app-product-card [product]="product" (buyClicked)="onBuyProduct($event)"></app-product-card>
-          }
-        </div>
-      }
-    }
-    @if (isLoading) {
-      <div class="message assistant">
-        <div class="message-content loading">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-    }
-  </div>
+<div class="page">
+  <header class="top-bar">
+    <div class="logo">NOVA</div>
+    <nav class="nav-links">
+      <a>Orders</a>
+      <a>Help</a>
+    </nav>
+    <div class="icon-group">
+      <button class="icon-button" aria-label="Search" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 1-4.95 11.95l-3.5 3.5 1.41 1.41 3.5-3.5A7 7 0 0 1 11 4Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></svg>
+      </button>
+      <button class="icon-button" aria-label="Cart">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h13l-1.5 8.5A2 2 0 0 1 16.5 16H9.2a2 2 0 0 1-2-1.6L5.3 4.5H3V3h3a1 1 0 0 1 1 .8L7 6Zm2.2 12.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm7 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
+        <span class="badge">2</span>
+      </button>
+      <button class="icon-button" aria-label="Profile">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.4 0-8 2.24-8 5v1h16v-1c0-2.76-3.6-5-8-5Z"/></svg>
+      </button>
+    </div>
+  </header>
 
-  <div class="chat-input-container">
-    <input 
-      type="text" 
-      class="chat-input" 
-      [(ngModel)]="userInput"
-      (keypress)="onKeyPress($event)"
-      placeholder="Search for products..."
-      [disabled]="isLoading"
-    >
-    <button class="send-button" (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
-      {{ isLoading ? '...' : 'Send' }}
-    </button>
+  <main class="main">
+    <section class="chat-card">
+      <div class="chat-title">
+        <div>
+          <div class="title">AI Shopping Assistant</div>
+          <div class="subtitle">Chat-first product discovery</div>
+        </div>
+        <div class="status">● Online</div>
+      </div>
+
+      <div class="chat-messages" #messagesContainer>
+        @for (message of messages; track $index) {
+          <div class="message-group" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
+            <div class="message-bubble">
+              {{ message.content }}
+            </div>
+
+            @if (message.role === 'assistant') {
+              <div class="quick-replies">
+                <button type="button" class="chip">Under $50</button>
+                <button type="button" class="chip">Eco-friendly</button>
+                <button type="button" class="chip">Fast delivery</button>
+                <button type="button" class="chip">Only in stock</button>
+              </div>
+            }
+
+            @if (message.type === 'products' && message.data) {
+              <div class="product-grid">
+                @for (product of message.data; track product.id) {
+                  <app-product-card [product]="product" (buyClicked)="onBuyProduct($event)"></app-product-card>
+                }
+              </div>
+            }
+          </div>
+        }
+        @if (isLoading) {
+          <div class="message-group assistant">
+            <div class="message-bubble loading">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="chat-input-container">
+        <input
+          type="text"
+          class="chat-input"
+          [(ngModel)]="userInput"
+          (keypress)="onKeyPress($event)"
+          placeholder="Need black running shoes size 42 under $80"
+          [disabled]="isLoading"
+        >
+        <button class="send-button" (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
+          {{ isLoading ? '...' : 'Send' }}
+        </button>
+      </div>
+    </section>
+
+    <aside class="cart-preview">
+      <div class="cart-header">
+        <span>Cart</span>
+        <span class="cart-count">2 items</span>
+      </div>
+      <div class="cart-items">
+        <div class="cart-item">
+          <div class="thumb"></div>
+          <div>
+            <div class="name">UltraRun Shoes</div>
+            <div class="price">$74.00</div>
+          </div>
+        </div>
+        <div class="cart-item">
+          <div class="thumb"></div>
+          <div>
+            <div class="name">Aero Socks</div>
+            <div class="price">$12.00</div>
+          </div>
+        </div>
+      </div>
+      <button class="checkout">Checkout</button>
+    </aside>
+  </main>
+
+  <div class="trust">
+    <span>Secure checkout</span>
+    <span>•</span>
+    <span>Easy returns</span>
   </div>
 </div>
 
-<app-order-modal 
-  [product]="selectedProduct" 
+<app-order-modal
+  [product]="selectedProduct"
   [isVisible]="showOrderModal"
   (close)="onCloseModal()"
   (confirm)="onConfirmOrder($event)">

@@ -1,3 +1,4 @@
+using InventoryService.Business.Entities;
 using InventoryService.Business.Interfaces;
 
 namespace InventoryService.Business.Services;
@@ -12,6 +13,8 @@ public class ProductSearchService(
 {
     private const double KeywordWeight = 0.4;
     private const double SemanticWeight = 0.6;
+    private const double MinRelativeToTop = 0.7; // keep results within 70% of top score
+    private const double MinAbsoluteScore = 0.01; // ignore near-zero noise
 
     public async Task<IEnumerable<ProductSearchResult>> SearchProductsAsync(string query, int maxResults = 10)
     {
@@ -29,7 +32,7 @@ public class ProductSearchService(
             var semanticResults = await semanticTask;
 
             // Merge results using reciprocal rank fusion
-            var hybridResults = MergeResults(keywordResults, semanticResults, maxResults);
+            var hybridResults = MergeResults(keywordResults, semanticResults, maxResults, query);
 
             logger.LogInformation("Hybrid search returned {Count} results for query: {Query}", hybridResults.Count(), query);
             return hybridResults;
@@ -64,6 +67,7 @@ public class ProductSearchService(
                 {
                     Id = x.Product.Id,
                     ProductName = x.Product.ProductName,
+                    ImageUrl = x.Product.ImageUrl,
                     Price = x.Product.Price,
                     AvailableStock = x.Product.AvailableStock,
                     RelevanceScore = x.Score
@@ -88,6 +92,7 @@ public class ProductSearchService(
             {
                 Id = vr.ProductId,
                 ProductName = vr.ProductName,
+                ImageUrl = string.IsNullOrWhiteSpace(vr.ImageUrl) ? ProductImageResolver.GetImageUrl(vr.ProductName) : vr.ImageUrl,
                 Price = vr.Price,
                 AvailableStock = vr.AvailableStock,
                 RelevanceScore = vr.SimilarityScore
@@ -141,9 +146,11 @@ public class ProductSearchService(
     private IEnumerable<ProductSearchResult> MergeResults(
         IEnumerable<ProductSearchResult> keywordResults,
         IEnumerable<ProductSearchResult> semanticResults,
-        int maxResults)
+        int maxResults,
+        string query)
     {
         const int k = 60; // RRF constant
+        var queryLower = query.ToLowerInvariant();
 
         var keywordDict = keywordResults
             .Select((r, index) => new { r.Id, Rank = index + 1, Result = r })
@@ -166,6 +173,20 @@ public class ProductSearchService(
             {
                 rrfScore += KeywordWeight * (1.0 / (k + keywordMatch.Rank));
                 result = keywordMatch.Result;
+
+                var nameLower = keywordMatch.Result.ProductName.ToLowerInvariant();
+                if (nameLower.Equals(queryLower, StringComparison.OrdinalIgnoreCase))
+                {
+                    rrfScore += 1.0; // exact match should dominate
+                }
+                else if (nameLower.Contains(queryLower))
+                {
+                    rrfScore += 0.2; // strong keyword signal
+                }
+                else if (nameLower.StartsWith(queryLower))
+                {
+                    rrfScore += 0.1; // prefix boost
+                }
             }
 
             if (semanticDict.TryGetValue(id, out var semanticMatch))
@@ -183,14 +204,27 @@ public class ProductSearchService(
             return (Result: result!, RrfScore: rrfScore);
         })
         .OrderByDescending(x => x.RrfScore)
-        .Take(maxResults)
-        .Select(x =>
-        {
-            x.Result.RelevanceScore = x.RrfScore;
-            return x.Result;
-        });
+        .ToList();
 
-        return fusedResults;
+        if (fusedResults.Count == 0)
+        {
+            return Enumerable.Empty<ProductSearchResult>();
+        }
+
+        var topScore = fusedResults[0].RrfScore;
+        var cutoff = Math.Max(topScore * MinRelativeToTop, MinAbsoluteScore);
+
+        var filtered = fusedResults
+            .Where(x => x.RrfScore >= cutoff)
+            .Take(maxResults)
+            .Select(x =>
+            {
+                x.Result.RelevanceScore = x.RrfScore;
+                return x.Result;
+            })
+            .ToList();
+
+        return filtered;
     }
 }
 

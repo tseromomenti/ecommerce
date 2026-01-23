@@ -47,6 +47,8 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseStaticFiles();
+
 //app.UseHttpsRedirection();
 
 app.MapGet("/GetProductHistory", async (string productName, IInventoryManagementService inventoryService) =>

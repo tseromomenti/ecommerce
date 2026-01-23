@@ -1,4 +1,5 @@
 using Ecommerce.Library.VectorData;
+using InventoryService.Business.Entities;
 using InventoryService.Business.Interfaces;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -54,6 +55,7 @@ public class VectorSearchService : IVectorSearchService
                 ProductId = (int)r.Record.ItemId,
                 ProductName = r.Record.ItemName,
                 Description = r.Record.Description,
+                ImageUrl = ProductImageResolver.GetImageUrl(r.Record.ItemName),
                 Price = (decimal)r.Record.Price,
                 AvailableStock = r.Record.AvailableStock,
                 SimilarityScore = r.Score ?? 0
