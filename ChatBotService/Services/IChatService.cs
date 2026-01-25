@@ -1,4 +1,5 @@
 using ChatBotService.Models;
+using Microsoft.Extensions.AI;
 
 namespace ChatBotService.Services;
 

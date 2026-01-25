@@ -1,24 +1,5 @@
 namespace ChatBotService.Models;
 
-public class ChatMessage
-{
-    public string Role { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-}
-
-public class ChatRequest
-{
-    public string Message { get; set; } = string.Empty;
-    public List<ChatMessage> History { get; set; } = new();
-}
-
-public class ChatResponse
-{
-    public string Message { get; set; } = string.Empty;
-    public string Type { get; set; } = "text";
-    public object? Data { get; set; }
-}
-
 public class ProductInfo
 {
     public int Id { get; set; }
@@ -27,6 +8,12 @@ public class ProductInfo
     public decimal Price { get; set; }
     public int AvailableStock { get; set; }
     public double RelevanceScore { get; set; }
+}
+
+public class ChatMessageModel
+{
+    public string Content { get; set; }
+    public string Role { get; set; }
 }
 
 public enum ChatIntent

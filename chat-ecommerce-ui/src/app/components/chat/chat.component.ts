@@ -28,7 +28,6 @@ export class ChatComponent implements OnInit {
     this.messages.push({
       role: 'assistant',
       content: "Hi! I'm your AI shopping assistant. What are you looking for today? Just type what you need, like \"wireless mouse\" or \"gaming keyboard\".",
-      type: 'text'
     });
   }
 
@@ -38,7 +37,6 @@ export class ChatComponent implements OnInit {
     const userMessage: ChatMessage = {
       role: 'user',
       content: this.userInput,
-      type: 'text'
     };
     this.messages.push(userMessage);
     
@@ -46,13 +44,11 @@ export class ChatComponent implements OnInit {
     this.userInput = '';
     this.isLoading = true;
 
-    this.chatService.sendMessage({ message: query, history: [] }).subscribe({
+    this.chatService.sendMessage(userMessage).subscribe({
       next: (response) => {
         const assistantMessage: ChatMessage = {
-          role: 'assistant',
-          content: response.message,
-          type: response.type,
-          data: response.data
+          content: response.content,
+          role: response.role
         };
         this.messages.push(assistantMessage);
         this.isLoading = false;
@@ -60,20 +56,16 @@ export class ChatComponent implements OnInit {
       },
       error: () => {
         this.messages.push({
-          role: 'assistant',
           content: 'Sorry, something went wrong. Please try again.',
-          type: 'text'
+          role: 'assistant'
         });
         this.isLoading = false;
       }
     });
   }
 
-  onKeyPress(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.sendMessage();
-    }
+  onEnter(): void {
+    this.sendMessage();
   }
 
   onBuyProduct(product: Product): void {
@@ -90,18 +82,14 @@ export class ChatComponent implements OnInit {
     this.chatService.createOrder(order.productId, order.quantity).subscribe({
       next: () => {
         this.messages.push({
-          role: 'assistant',
           content: `✅ Order confirmed! ${order.quantity}x ${this.selectedProduct?.productName} for $${((this.selectedProduct?.price || 0) * order.quantity).toFixed(2)}`,
-          type: 'text'
         });
         this.onCloseModal();
         this.scrollToBottom();
       },
       error: () => {
         this.messages.push({
-          role: 'assistant',
           content: "❌ Sorry, we couldn't process your order. Please try again.",
-          type: 'text'
         });
         this.onCloseModal();
       }

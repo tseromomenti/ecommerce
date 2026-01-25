@@ -70,11 +70,11 @@
           type="text"
           class="chat-input"
           [(ngModel)]="userInput"
-          (keypress)="onKeyPress($event)"
+          (keydown.enter)="onEnter()"
           placeholder="Need black running shoes size 42 under $80"
           [disabled]="isLoading"
         >
-        <button class="send-button" (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
+        <button type="button" class="send-button" (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
           {{ isLoading ? '...' : 'Send' }}
         </button>
       </div>

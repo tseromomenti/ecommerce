@@ -8,10 +8,8 @@ export interface Product {
 }
 
 export interface ChatMessage {
-  role: 'user' | 'assistant';
+  role?: 'user' | 'assistant';
   content: string;
-  type: 'text' | 'products';
-  data?: Product[];
 }
 
 export interface ChatRequest {

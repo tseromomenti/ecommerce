@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ChatBotService.Models;
 using ChatBotService.Services;
+using Microsoft.Extensions.AI;
+using OllamaSharp.Models.Chat;
 
 namespace ChatBotService.Controllers;
 
@@ -9,37 +11,23 @@ namespace ChatBotService.Controllers;
 public class ChatController(IChatService chatService) : ControllerBase
 {
     [HttpPost("message")]
-    public async Task<ActionResult<ChatResponse>> SendMessage([FromBody] ChatRequest request)
+    public async Task<ActionResult<ChatMessageModel>> SendMessage([FromBody] ChatMessageModel message)
     {
-        if (string.IsNullOrWhiteSpace(request.Message))
+        var lastMessage = message.Content;
+        if (string.IsNullOrWhiteSpace(lastMessage))
         {
             return BadRequest("Message cannot be empty");
         }
 
-        var response = await chatService.ProcessMessageAsync(request.Message, request.History);
-        return Ok(response);
-    }
+        var response = await chatService.ProcessMessageAsync(lastMessage, null);
 
-    [HttpGet("product/{productId}")]
-    public async Task<ActionResult<ProductInfo>> GetProductDetails(int productId)
-    {
-        var product = await chatService.GetProductDetailsAsync(productId);
-        if (product == null)
+        var responseMessage = new ChatMessageModel
         {
-            return NotFound();
-        }
-        return Ok(product);
-    }
+            Content = response.Text,
+            Role = "assistant"
+        };
 
-    [HttpPost("order")]
-    public async Task<ActionResult> CreateOrder([FromBody] OrderRequest request)
-    {
-        var success = await chatService.CreateOrderAsync(request.ProductId, request.Quantity);
-        if (!success)
-        {
-            return BadRequest("Unable to process order");
-        }
-        return Ok(new { message = "Order created successfully" });
+        return Ok(responseMessage);
     }
 }
 

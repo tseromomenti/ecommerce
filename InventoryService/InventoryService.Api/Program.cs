@@ -63,6 +63,16 @@ app.MapGet("/GetAllProducts", async (IInventoryManagementService inventoryServic
     return Results.Ok(products);
 });
 
+app.MapGet("/GetProductById", async (int productId, IInventoryManagementService inventoryService) =>
+{
+    var product = await inventoryService.GetProductByIdAsync(productId);
+    if (product == null)
+    {
+        return Results.NotFound(new { message = $"Product with ID {productId} not found." });
+    }
+    return Results.Ok(product);
+});
+
 // Hybrid search endpoint (combines keyword + semantic search)
 app.MapGet("/SearchProducts", async (string query, int? maxResults, IProductSearchService searchService) =>
 {

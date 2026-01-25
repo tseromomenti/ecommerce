@@ -24,7 +24,7 @@ export class ProductCardComponent {
         return product.imageUrl;
       }
 
-      return `${environment.apiUrl}${product.imageUrl}`;
+      return `${environment.chatServiceApiUrl}${product.imageUrl}`;
     }
 
     const name = product.productName.toLowerCase();

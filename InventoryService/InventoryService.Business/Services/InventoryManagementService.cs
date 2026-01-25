@@ -17,6 +17,14 @@ namespace InventoryService.Business.Services
 
             return products;
         }
+
+        public async Task<ProductDto> GetProductByIdAsync(int productId)
+        {
+            var product = await inventoryRepository.GetProductByIdAsync(productId);
+
+            return product;
+        }
+
         public async Task<bool> ProcessCreateOrderAsync(OrderDto order)
         {
             // check if product exists
@@ -39,7 +47,7 @@ namespace InventoryService.Business.Services
             // reserve stock
             product.AvailableStock -= order.Quantity;
             product.ReservedStock += order.Quantity;
-            
+
             await inventoryRepository.UpdateProductAsync(product);
 
             // record movement
@@ -147,7 +155,7 @@ namespace InventoryService.Business.Services
         public async Task AddProductToInventory(string productName, int quantity)
         {
             var product = await inventoryRepository.GetProductByNameAsync(productName);
-            
+
             if (product == null)
             {
                 product = new ProductDto

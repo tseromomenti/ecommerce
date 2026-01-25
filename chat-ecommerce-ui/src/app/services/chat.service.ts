@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ChatRequest, ChatResponse, Product } from '../models/chat.models';
+import { ChatMessage, ChatResponse, Product } from '../models/chat.models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.chatServiceApiUrl;
 
   constructor(private http: HttpClient) {}
 
-  sendMessage(request: ChatRequest): Observable<ChatResponse> {
-    return this.http.post<ChatResponse>(`${this.apiUrl}/api/chat/message`, request);
+  sendMessage(message: ChatMessage): Observable<ChatMessage> {
+    return this.http.post<ChatMessage>(`${this.apiUrl}/api/chat/message`, message);
   }
 
   getProductDetails(productId: number): Observable<Product> {

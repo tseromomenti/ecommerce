@@ -1,4 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5095'
+  chatServiceApiUrl: 'http://localhost:5095',
+  orderServiceApiUrl: 'http://localhost:5123',
+  inventoryServiceApiUrl: 'http://localhost:5068'
 };
