@@ -15,6 +15,8 @@ public class ChatService(
     {
         try
         {
+            // classify intent
+
             var client = httpClientFactory.CreateClient();
             var response = await client.GetAsync($"{_inventoryServiceUrl}/SearchProducts?query={Uri.EscapeDataString(message)}");
             
@@ -118,5 +120,10 @@ public class ChatService(
             logger.LogError(ex, "Error creating order: ProductId={ProductId}, Quantity={Quantity}", productId, quantity);
             return false;
         }
+    }
+
+    public async Task<ChatIntent> ClassifyIntent(string message)
+    {
+
     }
 }

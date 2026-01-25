@@ -28,3 +28,10 @@ public class ProductInfo
     public int AvailableStock { get; set; }
     public double RelevanceScore { get; set; }
 }
+
+public enum ChatIntent
+{
+    ProductRequest = 0,
+
+    Converse = 1
+}
