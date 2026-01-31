@@ -30,7 +30,7 @@ public class ChatService(
 
             if (intent.Result.ToString().Equals("converse", StringComparison.OrdinalIgnoreCase))
             {
-                var userMessage = new ChatMessage(ChatRole.Assistant, message);
+                var userMessage = new ChatMessage(ChatRole.User, message);
                 return await this.SendMessageAsync(userMessage);
             }
             else if (intent.Result.ToString().Equals("productrequest", StringComparison.OrdinalIgnoreCase))
