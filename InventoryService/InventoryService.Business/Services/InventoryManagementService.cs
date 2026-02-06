@@ -18,7 +18,7 @@ namespace InventoryService.Business.Services
             return products;
         }
 
-        public async Task<ProductDto> GetProductByIdAsync(int productId)
+        public async Task<ProductDto?> GetProductByIdAsync(int productId)
         {
             var product = await inventoryRepository.GetProductByIdAsync(productId);
 

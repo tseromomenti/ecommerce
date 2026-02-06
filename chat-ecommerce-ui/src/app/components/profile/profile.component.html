@@ -1,0 +1,24 @@
+<section class="profile-card">
+  <h1>Profile</h1>
+
+  @if (profile) {
+    <div class="field">
+      <span>User ID</span>
+      <strong>{{ profile.userId }}</strong>
+    </div>
+    <div class="field">
+      <span>Email</span>
+      <strong>{{ profile.email }}</strong>
+    </div>
+    <div class="field">
+      <span>Display Name</span>
+      <strong>{{ profile.displayName }}</strong>
+    </div>
+    <div class="field">
+      <span>Roles</span>
+      <strong>{{ profile.roles.join(', ') }}</strong>
+    </div>
+  } @else {
+    <p>Loading profile...</p>
+  }
+</section>

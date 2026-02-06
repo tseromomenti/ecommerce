@@ -1,14 +1,18 @@
 using FluentValidation;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OrderService.Entities;
 using OrderService.Infrustructure;
 using OrderService.Interfaces;
 using OrderService.Messaging;
 using OrderService.Repositories;
 using OrderService.Resilience;
+using OrderService.Services;
 using Serilog;
 using Serilog.Core;
+using System.Text;
 using System.Text.Json.Serialization;
 using Azure.Identity;
 using Serilog.Exceptions;
@@ -79,6 +83,9 @@ namespace OrderService
             builder.Services.AddTransient<IValidator<OrderRequest>, OrderRequestValidator>();
             builder.Services.AddScoped<IOrderProducer, OrderProducer>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddSingleton<IOrderV1Service, OrderV1Service>();
+            builder.Services.AddHttpClient();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton(ResiliencePolicyHelper.GetCircuitBreakerPolicy());
 
             builder.Services.AddAutoMapper(configAction => configAction.AddProfile<OrderMapper>());
@@ -88,6 +95,29 @@ namespace OrderService
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddHealthChecks();
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    var issuer = builder.Configuration["Jwt:Issuer"] ?? "ECommerceOrderingSystem";
+                    var audience = builder.Configuration["Jwt:Audience"] ?? "ECommerceOrderingSystem.Client";
+                    var key = builder.Configuration["Jwt:SigningKey"] ?? "super-secret-dev-signing-key-change-me";
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = issuer,
+                        ValidAudience = audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                        ClockSkew = TimeSpan.FromSeconds(30)
+                    };
+                });
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            });
 
 
             builder.Services.ConfigureHttpJsonOptions(options =>
@@ -119,6 +149,7 @@ namespace OrderService
             // Remove HTTPS redirection for Docker containers
             // app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

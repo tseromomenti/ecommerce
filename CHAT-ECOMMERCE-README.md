@@ -1,263 +1,83 @@
-# Chat-Based E-Commerce System
+# Chat-First Commerce Platform
 
-## Overview
-This is a ChatGPT-style e-commerce interface where users interact through a chat prompt instead of browsing like traditional sites (Amazon). The system uses **hybrid search** (keyword-based for now, with vector/semantic search ready to integrate) to find products.
+## What is implemented
+- Chat-first shopping with hybrid semantic search and adaptive clarifying follow-ups.
+- JWT auth with refresh tokens and roles (`Customer`, `Admin`) via `UserService`.
+- Payment abstraction with Stripe checkout session + webhook endpoint via `PaymentService`.
+- Inventory metadata expansion (category, brand, tags, description, SKU, active flag, currency).
+- Multi-category seed catalog (clothing, electronics, grocery, household).
+- Quiz flows (anime + food persona) with product recommendations.
+- Angular UI with routes: `Chat`, `Login`, `Register`, `Profile`, `Quiz`, `Admin`.
+- API Gateway v1 routing, JWT validation, basic rate limiting, correlation IDs.
 
-## Architecture
+## Services and default local ports
+- `ApiGateway`: `http://localhost:5095`
+- `UserService`: `http://localhost:5032`
+- `PaymentService`: `http://localhost:5042`
+- `ChatBotService`: `http://localhost:5021`
+- `InventoryService.Api`: `http://localhost:5068`
+- `OrderService`: `http://localhost:5123`
+- Angular UI: `http://localhost:4200`
 
-### Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **ApiGateway** | 5095 | API Gateway with YARP reverse proxy |
-| **ChatBotService** | 5021 | Chat API orchestration |
-| **InventoryService.Api** | 5068 | Product inventory and search |
-| **OrderService** | 5123 | Order processing |
-| **Angular UI** | 4200 | Frontend application |
-
-### Key Features
-- ✅ **Angular Frontend** - Modern SPA with ChatGPT-style interface
-- ✅ **API Gateway** - YARP-based reverse proxy for all services
-- ✅ **Chat-only interface** - No browsing, just type what you need
-- ✅ **Smart product search** - Finds products based on user queries
-- ✅ **Product cards** - Results displayed as interactive cards
-- ✅ **Quick ordering** - Click "Buy Now" to order directly
-- ✅ **Real-time stock** - Shows available inventory
-- 🚧 **Hybrid search** - Currently keyword-based, ready for semantic enhancement
-
-## How to Run
-
-### Prerequisites
-- .NET 10.0 SDK
-<<<<<<< Updated upstream
-- SQL Server (for inventory/orders)
-- Ollama (optional, for future semantic search)
-- Qdrant (optional, for vector search)
-
-### Quick Start
-
-1. **Start InventoryService:**
+## Docker-first local startup
+1. Start full backend stack:
 ```powershell
-cd InventoryService\InventoryService.Api
-dotnet run
+./scripts/bootstrap-local.ps1
 ```
-Service will start on `http://localhost:5001`
-
-2. **Start OrderService:**
-```powershell
-cd OrderService
-dotnet run
-```
-Service will start on `http://localhost:5002`
-
-3. **Start ChatBotService:**
-```powershell
-cd ChatBotService
-dotnet run
-```
-Service will start on `http://localhost:5000`
-
-4. **Open the chat interface:**
-Navigate to `http://localhost:5000` in your browser
-=======
-- Node.js 18+ with npm
-- SQL Server (for inventory/orders)
-- Angular CLI (`npm install -g @angular/cli`)
-
-### Option 1: Run All Services (PowerShell Script)
-```powershell
-.\start-all-services.ps1
-```
-Then in another terminal:
+2. Start UI:
 ```powershell
 cd chat-ecommerce-ui
 npm start
 ```
-
-### Option 2: VS Code Launch Configuration
-1. Open the project in VS Code
-2. Go to Run and Debug (Ctrl+Shift+D)
-3. Select "Launch All Services" compound configuration
-4. Press F5
-5. Start Angular separately: `cd chat-ecommerce-ui && npm start`
-
-### Option 3: Manual Start
-1. **Start API Gateway:**
+3. Verify stack health manually (optional):
 ```powershell
-cd ApiGateway
-dotnet run --urls http://localhost:5095
+./scripts/health-check.ps1 -IncludeUi
 ```
 
-2. **Start InventoryService:**
+## Non-docker local startup
 ```powershell
-cd InventoryService\InventoryService.Api
-dotnet run --urls http://localhost:5068
-```
-
-3. **Start OrderService:**
-```powershell
-cd OrderService
-dotnet run --urls http://localhost:5123
-```
-
-4. **Start ChatBotService:**
-```powershell
-cd ChatBotService
-dotnet run --urls http://localhost:5021
-```
-
-5. **Start Angular Frontend:**
-```powershell
+./start-all-services.ps1
 cd chat-ecommerce-ui
 npm start
 ```
 
-6. **Open the application:**
-Navigate to `http://localhost:4200` in your browser
->>>>>>> Stashed changes
+## Key v1 API surface
+- Auth:
+  - `POST /api/v1/auth/register`
+  - `POST /api/v1/auth/login`
+  - `POST /api/v1/auth/refresh`
+  - `POST /api/v1/auth/logout`
+  - `GET /api/v1/auth/me`
+- Chat:
+  - `POST /api/v1/chat/sessions`
+  - `POST /api/v1/chat/sessions/{sessionId}/messages`
+  - `POST /api/v1/chat/sessions/{sessionId}/quiz/start`
+  - `POST /api/v1/chat/sessions/{sessionId}/quiz/answer`
+- Inventory:
+  - `POST /api/v1/inventory/search/hybrid`
+  - `POST /api/v1/inventory/search/semantic`
+  - `GET /api/v1/inventory/products/{id}`
+  - `GET/POST/PUT/DELETE /api/v1/admin/products...` (Admin only)
+- Orders/Cart:
+  - `POST /api/v1/cart/items`
+  - `GET /api/v1/cart`
+  - `DELETE /api/v1/cart/items/{itemId}`
+  - `POST /api/v1/orders/checkout`
+  - `GET /api/v1/orders/me`
+  - `GET /api/v1/orders/{orderId}`
+- Payments:
+  - `POST /api/v1/payments/checkout-session`
+  - `POST /api/v1/payments/webhooks/stripe`
+  - `GET /api/v1/payments/{paymentId}`
 
-## Usage
+## Legacy compatibility endpoints retained
+- `POST /api/chat/message`
+- `GET /api/chat/product/{id}`
+- `POST /api/chat/order`
+- `GET /SearchProducts`
+- `POST /api/order`
 
-### Customer Flow
-<<<<<<< Updated upstream
-1. **Open the chat interface** - Clean ChatGPT-style UI
-=======
-1. **Open the Angular app** - Clean ChatGPT-style UI at http://localhost:4200
->>>>>>> Stashed changes
-2. **Type what you're looking for** - e.g., "wireless mouse", "gaming keyboard"
-3. **View product results** - Cards with price, stock, and details
-4. **Click "Buy Now"** - Select quantity and confirm order
-5. **Order confirmed** - Get instant confirmation
-
-### Example Queries
-- "mouse" - Find all mouse products
-- "keyboard" - Find keyboards
-- "wireless" - Find wireless products
-- "gaming" - Find gaming peripherals
-
-## API Endpoints
-
-### InventoryService.Api
-- `GET /SearchProducts?query={query}` - Search products
-- `GET /GetAllProducts` - List all products
-- `GET /GetProductHistory?productName={name}` - Product history
-
-### ChatBotService
-- `POST /api/chat/message` - Send chat message
-- `GET /api/chat/product/{id}` - Get product details
-- `POST /api/chat/order` - Create order
-
-### OrderService
-- `POST /api/order` - Create new order
-- `GET /api/order/{id}` - Get order details
-- `DELETE /api/order/{id}` - Cancel order
-
-## Configuration
-
-### ChatBotService - appsettings.Development.json
-```json
-{
-  "Services": {
-    "InventoryService": "http://localhost:5001",
-    "OrderService": "http://localhost:5002"
-  }
-}
-```
-
-## Architecture Decisions
-
-### Why Chat Interface?
-- **Simpler UX** - No complex navigation
-- **Faster shopping** - Direct intent → results
-- **Modern experience** - Familiar ChatGPT-style interaction
-- **Mobile-friendly** - Works great on any device
-
-### Search Strategy
-Currently using **keyword-based search** for reliability:
-- Exact match prioritized (score 1.0)
-- Partial match (score 0.5)
-- Case-insensitive
-- Fast and predictable
-
-**Future enhancement:** Add semantic search with embeddings for:
-- Understanding intent (e.g., "cheap" → low price)
-- Related products (e.g., "mouse pad" suggests "mouse")
-- Synonym matching
-
-### Technology Stack
-- **Frontend:** Vanilla JavaScript (no framework bloat)
-- **Backend:** ASP.NET Core Minimal APIs
-- **Search:** LINQ (keyword), ready for Semantic Kernel + Qdrant
-- **Styling:** Custom CSS (ChatGPT-inspired gradient design)
-
-## File Structure
-```
-ChatBotService/
-├── Controllers/
-│   ├── ChatController.cs      # Chat API endpoints
-│   └── TestController.cs      # Test endpoints
-├── Services/
-│   ├── IChatService.cs        # Service interface
-│   └── ChatService.cs         # Chat orchestration
-├── Models/
-│   └── ChatModels.cs          # DTOs
-├── wwwroot/
-│   └── index.html             # Chat UI
-└── Program.cs                 # Service configuration
-
-InventoryService/
-├── InventoryService.Api/      # REST API
-├── InventoryService.Business/ # Business logic
-│   ├── Services/
-│   │   └── ProductSearchService.cs  # Search implementation
-│   └── Interfaces/
-│       └── IProductSearchService.cs
-├── InventoryService.Persistance/  # Data access
-└── InventoryService.Embedding/    # Vector/AI services
-
-OrderService/                   # Order processing
-```
-
-## Development Roadmap
-
-### Phase 1 (Current) ✅
-- Chat UI
-- Keyword search
-- Product display
-- Basic ordering
-
-### Phase 2 (Next)
-- [ ] Semantic search integration
-- [ ] Vector embeddings for products
-- [ ] Conversational AI responses
-- [ ] Order history in chat
-- [ ] Product recommendations
-
-### Phase 3 (Future)
-- [ ] User authentication
-- [ ] Cart management
-- [ ] Payment integration
-- [ ] Order tracking
-- [ ] Admin dashboard
-
-## Troubleshooting
-
-### "Could not find products"
-- Ensure InventoryService is running
-- Check database has seeded data
-- Verify connection strings
-
-### "Order failed"
-- Ensure OrderService is running
-- Check product stock availability
-- Verify RabbitMQ is running (if using messaging)
-
-### Search not working
-- Check InventoryService logs
-- Verify ProductSearchService is registered
-- Ensure database connectivity
-
-## Contributing
-This is a modern take on e-commerce - contributions welcome!
-
-## License
-MIT
+## Notes
+- `PaymentService` supports Stripe and falls back to a mock checkout URL when Stripe keys are empty.
+- `UserService` seeds an admin user from config (`SeedAdmin` in `UserService/appsettings.json`).
+- Inventory migration `AddCommerceMetadataColumns` was added and applies on startup.

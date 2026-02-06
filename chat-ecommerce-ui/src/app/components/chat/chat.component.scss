@@ -277,6 +277,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: space-between;
 
   .thumb {
     width: 36px;
@@ -294,6 +295,19 @@
     font-size: 12px;
     color: #777;
   }
+}
+
+.remove {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.cart-empty {
+  color: #6b7280;
+  font-size: 13px;
 }
 
 .checkout {

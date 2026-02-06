@@ -1,0 +1,28 @@
+:host {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 70px);
+}
+
+.profile-card {
+  width: min(560px, 94vw);
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(17, 24, 39, 0.12);
+  padding: 24px;
+}
+
+h1 {
+  margin: 0 0 14px;
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px 0;
+
+  span {
+    color: #6b7280;
+  }
+}

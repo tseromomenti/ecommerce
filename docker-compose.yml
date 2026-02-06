@@ -1,12 +1,11 @@
 services:
-  #infrustructure services
   redis:
     image: redis:latest
     container_name: redis
     ports:
       - "6379:6379"
     volumes:
-     - redis_data:/data
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -26,13 +25,13 @@ services:
       MSSQL_SA_PASSWORD: "ComplexPassword123!"
     volumes:
       - sqlserver_data:/var/opt/mssql
-    networks:
-      - ecommerce-network
     healthcheck:
       test: ["CMD-SHELL", "[ -f /var/opt/mssql/data/master.mdf ]"]
-      interval: 10s
+      interval: 15s
       timeout: 10s
-      retries: 5
+      retries: 8
+    networks:
+      - ecommerce-network
 
   mongodb:
     image: mongo:latest
@@ -40,12 +39,52 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - "mongodb_data:/data/db"
+      - mongodb_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - ecommerce-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - ecommerce-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
     networks:
       - ecommerce-network
 
@@ -62,54 +101,28 @@ services:
     networks:
       - ecommerce-network
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - ecommerce-network
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant
-    ports:
-      - "6333:6333" # HTTP API
-      - "6334:6334" # gRPC API
-    volumes:
-      - qdrant_data:/qdrant/storage
-
-  # application services
   orderservice:
     build:
       context: .
       dockerfile: ./OrderService/Dockerfile
     container_name: orderservice
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "5123:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DbConnection=Server=sqlserver,1433;Database=Orders;User Id=sa;Password=ComplexPassword123!;TrustServerCertificate=True;Encrypt=False
+      - ConnectionStrings__MessageBrokerConnection=amqp://guest:guest@rabbitmq:5672
+      - Services__PaymentService=http://paymentservice:8080
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      paymentservice:
+        condition: service_started
     networks:
       - ecommerce-network
-    restart: unless-stopped
 
   inventoryservice_api:
     build:
@@ -117,9 +130,16 @@ services:
       dockerfile: ./InventoryService/InventoryService.Api/Dockerfile
     container_name: inventoryservice_api
     ports:
-      - "8082:8080"
+      - "5068:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DbConnection=Server=sqlserver,1433;Database=InventoryDb;User Id=sa;Password=ComplexPassword123!;TrustServerCertificate=True;Encrypt=False;
+      - ConnectionStrings__MongoDb=mongodb://mongodb:27017/InventoryDb
+      - ConnectionStrings__Redis=redis:6379
+      - Ollama__BaseUrl=http://ollama:11434
+      - Qdrant__Host=qdrant
+      - Qdrant__Port=6334
+      - Qdrant__UseHttps=false
     depends_on:
       mongodb:
         condition: service_healthy
@@ -127,10 +147,12 @@ services:
         condition: service_healthy
       sqlserver:
         condition: service_healthy
+      qdrant:
+        condition: service_started
+      ollama:
+        condition: service_started
     networks:
-        - ecommerce-network
-    restart: unless-stopped
-
+      - ecommerce-network
 
   inventoryservice_worker:
     build:
@@ -139,6 +161,14 @@ services:
     container_name: inventoryservice_worker
     environment:
       - DOTNET_ENVIRONMENT=Development
+      - ConnectionStrings__DbConnection=Server=sqlserver,1433;Database=InventoryDb;User Id=sa;Password=ComplexPassword123!;TrustServerCertificate=True;Encrypt=False;
+      - ConnectionStrings__MongoDb=mongodb://mongodb:27017/InventoryDb
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__MessageBrokerConnection=amqp://guest:guest@rabbitmq:5672
+      - Ollama__BaseUrl=http://ollama:11434
+      - Qdrant__Host=qdrant
+      - Qdrant__Port=6334
+      - Qdrant__UseHttps=false
     depends_on:
       mongodb:
         condition: service_healthy
@@ -150,8 +180,59 @@ services:
         condition: service_healthy
     networks:
       - ecommerce-network
-    restart: unless-stopped
 
+  userservice:
+    build:
+      context: .
+      dockerfile: ./UserService/Dockerfile
+    container_name: userservice
+    ports:
+      - "5032:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DbConnection=Server=sqlserver,1433;Database=UsersDb;User Id=sa;Password=ComplexPassword123!;TrustServerCertificate=True;Encrypt=False;
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  paymentservice:
+    build:
+      context: .
+      dockerfile: ./PaymentService/Dockerfile
+    container_name: paymentservice
+    ports:
+      - "5042:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - ecommerce-network
+
+  chatbotservice:
+    build:
+      context: .
+      dockerfile: ./ChatBotService/Dockerfile
+    container_name: chatbotservice
+    ports:
+      - "5021:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Services__InventoryService=http://inventoryservice_api:8080
+      - Services__OrderService=http://orderservice:8080
+      - Ollama__BaseUrl=http://ollama:11434
+    depends_on:
+      inventoryservice_api:
+        condition: service_started
+      orderservice:
+        condition: service_started
+      ollama:
+        condition: service_started
+    networks:
+      - ecommerce-network
 
   apigateway:
     build:
@@ -159,17 +240,22 @@ services:
       dockerfile: /Dockerfile
     container_name: apigateway
     ports:
-      - "9000:8080"
+      - "5095:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ReverseProxy__Clusters__chat-cluster__Destinations__chat-service__Address=http://chatbotservice:8080
+      - ReverseProxy__Clusters__inventory-cluster__Destinations__inventory-service__Address=http://inventoryservice_api:8080
+      - ReverseProxy__Clusters__order-cluster__Destinations__order-service__Address=http://orderservice:8080
+      - ReverseProxy__Clusters__user-cluster__Destinations__user-service__Address=http://userservice:8080
+      - ReverseProxy__Clusters__payment-cluster__Destinations__payment-service__Address=http://paymentservice:8080
     depends_on:
       - orderservice
-      - inventoryservice_worker
       - inventoryservice_api
-      - seq
+      - userservice
+      - paymentservice
+      - chatbotservice
     networks:
       - ecommerce-network
-    restart: unless-stopped
 
 volumes:
   rabbitmq_data:
@@ -178,6 +264,7 @@ volumes:
   mongodb_data:
   redis_data:
   qdrant_data:
+  ollama_data:
 
 networks:
   ecommerce-network:

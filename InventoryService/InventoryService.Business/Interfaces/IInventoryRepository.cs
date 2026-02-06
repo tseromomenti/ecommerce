@@ -15,5 +15,7 @@ namespace InventoryService.Business.Interfaces
         Task UpdateProductAsync(ProductDto product);
 
         Task DeleteProductAsync(ProductDto product);
+
+        Task<bool> DeleteProductByIdAsync(int productId);
     }
 }

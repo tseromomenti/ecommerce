@@ -17,6 +17,14 @@ Write-Host "`nStarting services..." -ForegroundColor Green
 $apiGateway = Start-Process -FilePath "dotnet" -ArgumentList "run --project ApiGateway/ApiGateway.csproj --urls http://localhost:5095" -PassThru -NoNewWindow
 Write-Host "  API Gateway starting on http://localhost:5095" -ForegroundColor Cyan
 
+# Start User Service
+$userService = Start-Process -FilePath "dotnet" -ArgumentList "run --project UserService/UserService.csproj --urls http://localhost:5032" -PassThru -NoNewWindow
+Write-Host "  User Service starting on http://localhost:5032" -ForegroundColor Cyan
+
+# Start Payment Service
+$paymentService = Start-Process -FilePath "dotnet" -ArgumentList "run --project PaymentService/PaymentService.csproj --urls http://localhost:5042" -PassThru -NoNewWindow
+Write-Host "  Payment Service starting on http://localhost:5042" -ForegroundColor Cyan
+
 # Start Inventory Service
 $inventoryService = Start-Process -FilePath "dotnet" -ArgumentList "run --project InventoryService/InventoryService.Api/InventoryService.Api.csproj --urls http://localhost:5068" -PassThru -NoNewWindow
 Write-Host "  Inventory Service starting on http://localhost:5068" -ForegroundColor Cyan
@@ -37,7 +45,7 @@ Write-Host "`nPress Ctrl+C to stop all services...`n" -ForegroundColor Yellow
 
 # Wait for user to cancel
 try {
-    Wait-Process -Id $apiGateway.Id, $inventoryService.Id, $orderService.Id, $chatService.Id
+    Wait-Process -Id $apiGateway.Id, $userService.Id, $paymentService.Id, $inventoryService.Id, $orderService.Id, $chatService.Id
 } catch {
     Write-Host "`nStopping all services..." -ForegroundColor Yellow
 }

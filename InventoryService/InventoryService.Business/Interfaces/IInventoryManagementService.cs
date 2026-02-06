@@ -7,7 +7,7 @@ public interface IInventoryManagementService
 {
     Task<IEnumerable<ProductDto>> GetAllProductsAsync();
 
-    Task<ProductDto> GetProductByIdAsync(int productId);
+    Task<ProductDto?> GetProductByIdAsync(int productId);
 
     Task<bool> ProcessCreateOrderAsync(OrderDto order);
 

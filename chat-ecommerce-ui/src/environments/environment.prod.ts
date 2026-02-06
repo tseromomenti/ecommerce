@@ -1,4 +1,8 @@
 export const environment = {
   production: true,
-  apiUrl: '/api'
+  chatServiceApiUrl: '',
+  orderServiceApiUrl: '',
+  inventoryServiceApiUrl: '',
+  authServiceApiUrl: '',
+  paymentServiceApiUrl: ''
 };

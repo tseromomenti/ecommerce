@@ -1,15 +1,19 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS base
 WORKDIR /app
+EXPOSE 8080
 
-COPY *.csproj ./
-RUN dotnet restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+WORKDIR /src
+COPY ["ApiGateway/ApiGateway.csproj", "ApiGateway/"]
+RUN dotnet restore "ApiGateway/ApiGateway.csproj"
+COPY . .
+WORKDIR "/src/ApiGateway"
+RUN dotnet build "ApiGateway.csproj" -c Release -o /app/build
 
-COPY . ./
+FROM build AS publish
+RUN dotnet publish "ApiGateway.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-RUN dotnet publish -c Release -o /app/out
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM base AS final
 WORKDIR /app
-COPY --from=build /app/out .
-
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "ApiGateway.dll"]

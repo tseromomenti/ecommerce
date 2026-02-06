@@ -1,0 +1,42 @@
+<section class="admin-page">
+  <h1>Admin Product Control</h1>
+
+  <div class="creator">
+    <input placeholder="Product name" [(ngModel)]="draft.productName" name="productName">
+    <input placeholder="Description" [(ngModel)]="draft.description" name="description">
+    <input placeholder="Category" [(ngModel)]="draft.category" name="category">
+    <input placeholder="Brand" [(ngModel)]="draft.brand" name="brand">
+    <input type="number" placeholder="Price" [(ngModel)]="draft.price" name="price">
+    <input type="number" placeholder="Stock" [(ngModel)]="draft.availableStock" name="stock">
+    <button (click)="addProduct()">Add Product</button>
+  </div>
+
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of products; track product.id) {
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.productName }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.price | number:'1.2-2' }}</td>
+          <td>{{ product.availableStock }}</td>
+          <td><button (click)="deleteProduct(product.id)">Delete</button></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

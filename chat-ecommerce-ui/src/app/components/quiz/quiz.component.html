@@ -1,0 +1,38 @@
+<section class="quiz-page">
+  <header>
+    <h1>Personality Quizzes</h1>
+    <p>Try a quick quiz and get AI-persona recommendations.</p>
+  </header>
+
+  <div class="quiz-actions">
+    <button (click)="start('anime')" [disabled]="isLoading">Start Anime Quiz</button>
+    <button (click)="start('food')" [disabled]="isLoading">Start Food Quiz</button>
+  </div>
+
+  @if (question) {
+    <div class="question-card">
+      <h2>{{ question.prompt }}</h2>
+      <div class="options">
+        @for (option of question.options; track option.key) {
+          <button (click)="answer(option.key)" [disabled]="isLoading">{{ option.label }}</button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (result) {
+    <div class="result-card">
+      <h2>{{ result.personaLabel }}</h2>
+      <p>Confidence: {{ (result.confidence * 100).toFixed(0) }}%</p>
+      <p>Recommended tags: {{ result.recommendedTags.join(', ') }}</p>
+    </div>
+  }
+
+  @if (recommendedProducts.length) {
+    <div class="products">
+      @for (product of recommendedProducts; track product.id) {
+        <app-product-card [product]="product"></app-product-card>
+      }
+    </div>
+  }
+</section>

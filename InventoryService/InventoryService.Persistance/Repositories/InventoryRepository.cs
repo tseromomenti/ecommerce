@@ -40,11 +40,16 @@ namespace InventoryService.Persistance.Repositories
             var productDto = mapper.Map<ProductEntity>(product);
             await context.Products.AddAsync(productDto);
             await context.SaveChangesAsync();
+            product.Id = productDto.Id;
         }
 
         public async Task UpdateProductAsync(ProductDto product)
         {
             var existingProduct = await context.Products.FindAsync(product.Id);
+            if (existingProduct == null)
+            {
+                return;
+            }
 
             mapper.Map(product, existingProduct);
             await context.SaveChangesAsync();
@@ -55,6 +60,19 @@ namespace InventoryService.Persistance.Repositories
             var productDto = mapper.Map<ProductEntity>(product);
             context.Products.Remove(productDto);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteProductByIdAsync(int productId)
+        {
+            var existingProduct = await context.Products.FindAsync(productId);
+            if (existingProduct == null)
+            {
+                return false;
+            }
+
+            context.Products.Remove(existingProduct);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

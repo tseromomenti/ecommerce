@@ -16,7 +16,12 @@ public class ProductSearchService(
     private const double MinRelativeToTop = 0.7; // keep results within 70% of top score
     private const double MinAbsoluteScore = 0.01; // ignore near-zero noise
 
-    public async Task<IEnumerable<ProductSearchResult>> SearchProductsAsync(string query, int maxResults = 10)
+    public Task<IEnumerable<ProductSearchResult>> SearchProductsAsync(string query, int maxResults = 10)
+    {
+        return SearchProductsAsync(query, new SearchFilters(), maxResults);
+    }
+
+    public async Task<IEnumerable<ProductSearchResult>> SearchProductsAsync(string query, SearchFilters filters, int maxResults = 10)
     {
         try
         {
@@ -25,24 +30,44 @@ public class ProductSearchService(
             // Execute keyword and semantic search in parallel
             var keywordTask = PerformKeywordSearchAsync(query, maxResults * 2);
             var semanticTask = PerformSemanticSearchAsync(query, maxResults * 2);
+            var allProductsTask = inventoryRepository.GetAllProductsAsync();
 
-            await Task.WhenAll(keywordTask, semanticTask);
+            await Task.WhenAll(keywordTask, semanticTask, allProductsTask);
 
             var keywordResults = await keywordTask;
             var semanticResults = await semanticTask;
+            var productsById = (await allProductsTask).ToDictionary(p => p.Id, p => p);
+
+            semanticResults = semanticResults.Select(result =>
+            {
+                if (productsById.TryGetValue(result.Id, out var product))
+                {
+                    result.Sku = product.Sku;
+                    result.Description = product.Description;
+                    result.Category = product.Category;
+                    result.Subcategory = product.Subcategory;
+                    result.Brand = product.Brand;
+                    result.Tags = product.Tags;
+                    result.CurrencyCode = product.CurrencyCode;
+                }
+
+                return result;
+            });
 
             // Merge results using reciprocal rank fusion
             var hybridResults = MergeResults(keywordResults, semanticResults, maxResults, query);
+            var filtered = ApplyFilters(hybridResults, filters).Take(maxResults).ToList();
 
-            logger.LogInformation("Hybrid search returned {Count} results for query: {Query}", hybridResults.Count(), query);
-            return hybridResults;
+            logger.LogInformation("Hybrid search returned {Count} results for query: {Query}", filtered.Count, query);
+            return filtered;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error in hybrid search for query: {Query}", query);
             
             // Fallback to keyword-only search if hybrid fails
-            return await PerformKeywordSearchAsync(query, maxResults);
+            var fallback = await PerformKeywordSearchAsync(query, maxResults);
+            return ApplyFilters(fallback, filters);
         }
     }
 
@@ -65,7 +90,14 @@ public class ProductSearchService(
                 .Select(x => new ProductSearchResult
                 {
                     Id = x.Product.Id,
+                    Sku = x.Product.Sku,
                     ProductName = x.Product.ProductName,
+                    Description = x.Product.Description,
+                    Category = x.Product.Category,
+                    Subcategory = x.Product.Subcategory,
+                    Brand = x.Product.Brand,
+                    Tags = x.Product.Tags,
+                    CurrencyCode = x.Product.CurrencyCode,
                     ImageUrl = x.Product.ImageUrl,
                     Price = x.Product.Price,
                     AvailableStock = x.Product.AvailableStock,
@@ -91,6 +123,7 @@ public class ProductSearchService(
             {
                 Id = vr.ProductId,
                 ProductName = vr.ProductName,
+                Description = vr.Description,
                 ImageUrl = string.IsNullOrWhiteSpace(vr.ImageUrl) ? ProductImageResolver.GetImageUrl(vr.ProductName) : vr.ImageUrl,
                 Price = vr.Price,
                 AvailableStock = vr.AvailableStock,
@@ -365,6 +398,66 @@ public class ProductSearchService(
             .ToList();
 
         return filtered;
+    }
+
+    private static IEnumerable<ProductSearchResult> ApplyFilters(IEnumerable<ProductSearchResult> results, SearchFilters filters)
+    {
+        var query = results;
+
+        if (!string.IsNullOrWhiteSpace(filters.Category))
+        {
+            query = query.Where(r => r.Category.Contains(filters.Category, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Subcategory))
+        {
+            query = query.Where(r => r.Subcategory.Contains(filters.Subcategory, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Brand))
+        {
+            query = query.Where(r => r.Brand.Contains(filters.Brand, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (filters.MinPrice.HasValue)
+        {
+            query = query.Where(r => r.Price >= filters.MinPrice.Value);
+        }
+
+        if (filters.MaxPrice.HasValue)
+        {
+            query = query.Where(r => r.Price <= filters.MaxPrice.Value);
+        }
+
+        if (filters.InStockOnly)
+        {
+            query = query.Where(r => r.AvailableStock > 0);
+        }
+
+        if (filters.PersonaTags != null && filters.PersonaTags.Count > 0)
+        {
+            query = query.Where(r =>
+                filters.PersonaTags.Any(tag =>
+                    r.Tags.Contains(tag, StringComparison.OrdinalIgnoreCase) ||
+                    r.ProductName.Contains(tag, StringComparison.OrdinalIgnoreCase) ||
+                    r.Description.Contains(tag, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Color))
+        {
+            query = query.Where(r =>
+                r.Tags.Contains(filters.Color, StringComparison.OrdinalIgnoreCase) ||
+                r.ProductName.Contains(filters.Color, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Size))
+        {
+            query = query.Where(r =>
+                r.Tags.Contains(filters.Size, StringComparison.OrdinalIgnoreCase) ||
+                r.Description.Contains(filters.Size, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return query;
     }
 }
 

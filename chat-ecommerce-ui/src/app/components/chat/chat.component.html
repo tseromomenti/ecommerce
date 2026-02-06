@@ -38,10 +38,16 @@
 
             @if (message.role === 'assistant') {
               <div class="quick-replies">
-                <button type="button" class="chip">Under $50</button>
-                <button type="button" class="chip">Eco-friendly</button>
-                <button type="button" class="chip">Fast delivery</button>
-                <button type="button" class="chip">Only in stock</button>
+                @if (message.suggestedReplies?.length) {
+                  @for (reply of message.suggestedReplies; track reply) {
+                    <button type="button" class="chip" (click)="onQuickReply(reply)">{{ reply }}</button>
+                  }
+                } @else {
+                  <button type="button" class="chip" (click)="onQuickReply('Under $50')">Under $50</button>
+                  <button type="button" class="chip" (click)="onQuickReply('Eco-friendly')">Eco-friendly</button>
+                  <button type="button" class="chip" (click)="onQuickReply('Fast delivery')">Fast delivery</button>
+                  <button type="button" class="chip" (click)="onQuickReply('Only in stock')">Only in stock</button>
+                }
               </div>
             }
 
@@ -83,25 +89,27 @@
     <aside class="cart-preview">
       <div class="cart-header">
         <span>Cart</span>
-        <span class="cart-count">2 items</span>
+        <span class="cart-count">{{ cartItemCount }} items</span>
       </div>
       <div class="cart-items">
-        <div class="cart-item">
-          <div class="thumb"></div>
-          <div>
-            <div class="name">UltraRun Shoes</div>
-            <div class="price">$74.00</div>
-          </div>
-        </div>
-        <div class="cart-item">
-          <div class="thumb"></div>
-          <div>
-            <div class="name">Aero Socks</div>
-            <div class="price">$12.00</div>
-          </div>
-        </div>
+        @if (cart?.items?.length) {
+          @for (item of cart?.items; track item.itemId) {
+            <div class="cart-item">
+              <div class="thumb"></div>
+              <div>
+                <div class="name">{{ item.productName }} x{{ item.quantity }}</div>
+                <div class="price">${{ item.lineTotal.toFixed(2) }}</div>
+              </div>
+              <button type="button" class="remove" (click)="removeCartItem(item.itemId)">×</button>
+            </div>
+          }
+        } @else {
+          <div class="cart-empty">Cart is empty.</div>
+        }
       </div>
-      <button class="checkout">Checkout</button>
+      <button class="checkout" (click)="checkout()" [disabled]="!cart?.items?.length || isCheckoutLoading">
+        {{ isCheckoutLoading ? 'Processing...' : 'Checkout' }}
+      </button>
     </aside>
   </main>
 

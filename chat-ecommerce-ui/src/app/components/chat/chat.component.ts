@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
-import { ChatMessageModel, ChatRequestModel, ChatResponseMessage, Product } from '../../models/chat.models';
+import { CartResponse, OrderService } from '../../services/order.service';
+import { ChatRequestModel, ChatResponseMessage, Product } from '../../models/chat.models';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { OrderModalComponent } from '../order-modal/order-modal.component';
 
@@ -16,19 +17,22 @@ import { OrderModalComponent } from '../order-modal/order-modal.component';
 export class ChatComponent implements OnInit {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-  messages: ChatMessageModel[] = [];
+  messages: ChatResponseMessage[] = [];
   userInput = '';
   isLoading = false;
   showOrderModal = false;
   selectedProduct: Product | null = null;
+  cart: CartResponse | null = null;
+  isCheckoutLoading = false;
 
-  constructor(private chatService: ChatService) {}
+  constructor(private chatService: ChatService, private orderService: OrderService) {}
 
   ngOnInit(): void {
     this.messages.push({
       role: 'assistant',
       content: "Hi! I'm your AI shopping assistant. What are you looking for today? Just type what you need, like \"wireless mouse\" or \"gaming keyboard\".",
     });
+    this.refreshCart();
   }
 
   sendMessage(): void {
@@ -48,9 +52,20 @@ export class ChatComponent implements OnInit {
       next: (response) => {
         const assistantMessage: ChatResponseMessage = {
           content: response.content,
-          role: response.role
+          role: response.role,
+          type: response.type,
+          data: response.data,
+          suggestedReplies: response.suggestedReplies,
+          clarifyingQuestion: response.clarifyingQuestion,
+          nextAction: response.nextAction
         };
         this.messages.push(assistantMessage);
+        if (response.clarifyingQuestion) {
+          this.messages.push({
+            content: response.clarifyingQuestion,
+            role: 'assistant'
+          });
+        }
         this.isLoading = false;
         this.scrollToBottom();
       },
@@ -68,6 +83,11 @@ export class ChatComponent implements OnInit {
     this.sendMessage();
   }
 
+  onQuickReply(reply: string): void {
+    this.userInput = reply;
+    this.sendMessage();
+  }
+
   onBuyProduct(product: Product): void {
     this.selectedProduct = product;
     this.showOrderModal = true;
@@ -79,13 +99,18 @@ export class ChatComponent implements OnInit {
   }
 
   onConfirmOrder(order: { productId: number; quantity: number }): void {
-    this.chatService.createOrder(order.productId, order.quantity).subscribe({
+    if (!this.selectedProduct) {
+      return;
+    }
+
+    this.orderService.addCartItem(this.selectedProduct, order.quantity).subscribe({
       next: () => {
         this.messages.push({
-          content: `✅ Order confirmed! ${order.quantity}x ${this.selectedProduct?.productName} for $${((this.selectedProduct?.price || 0) * order.quantity).toFixed(2)}`,
+          content: `Added ${order.quantity}x ${this.selectedProduct?.productName} to cart.`,
           role: 'assistant'
         });
         this.onCloseModal();
+        this.refreshCart();
         this.scrollToBottom();
       },
       error: () => {
@@ -95,6 +120,47 @@ export class ChatComponent implements OnInit {
         });
         this.onCloseModal();
       }
+    });
+  }
+
+  removeCartItem(itemId: string): void {
+    this.orderService.removeCartItem(itemId).subscribe({
+      next: () => this.refreshCart()
+    });
+  }
+
+  checkout(): void {
+    this.isCheckoutLoading = true;
+    this.orderService.checkout().subscribe({
+      next: (response) => {
+        this.isCheckoutLoading = false;
+        this.refreshCart();
+        this.messages.push({
+          role: 'assistant',
+          content: response.checkoutUrl
+            ? `Checkout created. Complete payment here: ${response.checkoutUrl}`
+            : `Order ${response.orderId} is pending payment.`
+        });
+        this.scrollToBottom();
+      },
+      error: () => {
+        this.isCheckoutLoading = false;
+        this.messages.push({
+          role: 'assistant',
+          content: 'Checkout failed. Please try again.'
+        });
+      }
+    });
+  }
+
+  get cartItemCount(): number {
+    return this.cart?.items?.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
+  }
+
+  private refreshCart(): void {
+    this.orderService.getCart().subscribe({
+      next: (cart) => this.cart = cart,
+      error: () => this.cart = null
     });
   }
 

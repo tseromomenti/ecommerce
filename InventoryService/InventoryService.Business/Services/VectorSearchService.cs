@@ -118,8 +118,10 @@ public class VectorSearchService : IVectorSearchService
 
             foreach (var product in products)
             {
-                // Create a description from available data
-                var description = GenerateProductDescription(product.ProductName, product.Price, product.AvailableStock);
+                // Prefer authored description and append metadata for retrieval quality.
+                var description = string.IsNullOrWhiteSpace(product.Description)
+                    ? GenerateProductDescription(product.ProductName, product.Price, product.AvailableStock)
+                    : $"{product.Description} Category: {product.Category}. Brand: {product.Brand}. Tags: {product.Tags}.";
                 
                 await IndexProductAsync(
                     product.Id,

@@ -1,0 +1,23 @@
+<section class="auth-card">
+  <h1>Create account</h1>
+  <p>Start using chat-driven shopping with semantic search.</p>
+
+  <form (ngSubmit)="submit()">
+    <label>Display name</label>
+    <input type="text" [(ngModel)]="displayName" name="displayName" required>
+
+    <label>Email</label>
+    <input type="email" [(ngModel)]="email" name="email" required>
+
+    <label>Password</label>
+    <input type="password" [(ngModel)]="password" name="password" required>
+
+    @if (error) {
+      <div class="error">{{ error }}</div>
+    }
+
+    <button type="submit" [disabled]="isLoading">{{ isLoading ? 'Creating...' : 'Create account' }}</button>
+  </form>
+
+  <a routerLink="/login">Already have an account?</a>
+</section>

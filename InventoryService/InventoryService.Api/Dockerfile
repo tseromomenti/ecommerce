@@ -1,40 +1,22 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS base
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
-
-# Copy project files for restore (now from solution root context)
-COPY ["InventoryService/InventoryService.Api/InventoryService.Api.csproj", "InventoryService.Api/"]
-COPY ["InventoryService/InventoryService.Business/InventoryService.Business.csproj", "InventoryService.Business/"]
-COPY ["InventoryService/InventoryService.Persistance/InventoryService.Persistance.csproj", "InventoryService.Persistance/"]
-COPY ["./Ecommerce.Library/Ecommerce.Library.csproj", "Ecommerce.Library/"]
-
-# Restore dependencies
-RUN dotnet restore "InventoryService.Api/InventoryService.Api.csproj"
-
-# Copy all source code
+COPY ["InventoryService/InventoryService.Api/InventoryService.Api.csproj", "InventoryService/InventoryService.Api/"]
+COPY ["InventoryService/InventoryService.Business/InventoryService.Business.csproj", "InventoryService/InventoryService.Business/"]
+COPY ["InventoryService/InventoryService.Persistance/InventoryService.Persistance.csproj", "InventoryService/InventoryService.Persistance/"]
+COPY ["InventoryService/InventoryService.Embedding/InventoryService.Embedding.csproj", "InventoryService/InventoryService.Embedding/"]
+COPY ["Ecommerce.Library/Ecommerce.Library.csproj", "Ecommerce.Library/"]
+RUN dotnet restore "InventoryService/InventoryService.Api/InventoryService.Api.csproj"
 COPY . .
-
-# Build the project
 WORKDIR "/src/InventoryService/InventoryService.Api"
-RUN dotnet build "InventoryService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "InventoryService.Api.csproj" -c Release -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-WORKDIR "/src/InventoryService/InventoryService.Api"
-RUN dotnet publish "InventoryService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "InventoryService.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
