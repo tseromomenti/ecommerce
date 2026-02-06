@@ -1,5 +1,9 @@
 Write-Host "Starting full commerce stack with Docker Compose..." -ForegroundColor Cyan
-docker compose up -d --build
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$composeFile = Join-Path $repoRoot "docker-compose.yml"
+
+docker compose -f $composeFile up -d --build
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "docker compose up failed." -ForegroundColor Red

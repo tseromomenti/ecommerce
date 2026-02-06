@@ -10,68 +10,27 @@ namespace InventoryService.Persistance.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "AttributesJson",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Brand",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Category",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "CurrencyCode",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Description",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsActive",
-                table: "Products",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Sku",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Subcategory",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Tags",
-                table: "Products",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('Products','AttributesJson') IS NULL
+                    ALTER TABLE [Products] ADD [AttributesJson] nvarchar(max) NOT NULL DEFAULT N'{}';
+                IF COL_LENGTH('Products','Brand') IS NULL
+                    ALTER TABLE [Products] ADD [Brand] nvarchar(max) NOT NULL DEFAULT N'';
+                IF COL_LENGTH('Products','Category') IS NULL
+                    ALTER TABLE [Products] ADD [Category] nvarchar(max) NOT NULL DEFAULT N'';
+                IF COL_LENGTH('Products','CurrencyCode') IS NULL
+                    ALTER TABLE [Products] ADD [CurrencyCode] nvarchar(max) NOT NULL DEFAULT N'USD';
+                IF COL_LENGTH('Products','Description') IS NULL
+                    ALTER TABLE [Products] ADD [Description] nvarchar(max) NOT NULL DEFAULT N'';
+                IF COL_LENGTH('Products','IsActive') IS NULL
+                    ALTER TABLE [Products] ADD [IsActive] bit NOT NULL DEFAULT CAST(1 as bit);
+                IF COL_LENGTH('Products','Sku') IS NULL
+                    ALTER TABLE [Products] ADD [Sku] nvarchar(max) NOT NULL DEFAULT N'';
+                IF COL_LENGTH('Products','Subcategory') IS NULL
+                    ALTER TABLE [Products] ADD [Subcategory] nvarchar(max) NOT NULL DEFAULT N'';
+                IF COL_LENGTH('Products','Tags') IS NULL
+                    ALTER TABLE [Products] ADD [Tags] nvarchar(max) NOT NULL DEFAULT N'';
+                """);
         }
 
         /// <inheritdoc />

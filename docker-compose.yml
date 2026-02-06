@@ -161,6 +161,7 @@ services:
     container_name: inventoryservice_worker
     environment:
       - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DbConnection=Server=sqlserver,1433;Database=InventoryDb;User Id=sa;Password=ComplexPassword123!;TrustServerCertificate=True;Encrypt=False;
       - ConnectionStrings__MongoDb=mongodb://mongodb:27017/InventoryDb
       - ConnectionStrings__Redis=redis:6379
@@ -236,8 +237,8 @@ services:
 
   apigateway:
     build:
-      context: ./ApiGateway
-      dockerfile: /Dockerfile
+      context: .
+      dockerfile: ./ApiGateway/Dockerfile
     container_name: apigateway
     ports:
       - "5095:8080"

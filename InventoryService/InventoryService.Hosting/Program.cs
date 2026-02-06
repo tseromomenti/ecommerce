@@ -25,12 +25,16 @@ namespace InventoryService.Hosting
             builder.Services.AddMassTransit(x =>
             {
                 x.AddConsumer<OrderConsumer>();
+                var brokerConnection = builder.Configuration.GetConnectionString("MessageBrokerConnection") ?? string.Empty;
+                var useRabbitMq = brokerConnection.StartsWith("amqp://", StringComparison.OrdinalIgnoreCase)
+                                  || brokerConnection.Contains("rabbitmq", StringComparison.OrdinalIgnoreCase)
+                                  || builder.Environment.IsDevelopment();
 
-                if (builder.Environment.IsDevelopment())
+                if (useRabbitMq)
                 {
                     x.UsingRabbitMq((context, cfg) =>
                     {
-                        cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
+                        cfg.Host(brokerConnection);
                         cfg.ReceiveEndpoint("order-queue", e =>
                         {
                             e.ConfigureConsumer<OrderConsumer>(context);
@@ -41,7 +45,7 @@ namespace InventoryService.Hosting
                 {
                     x.UsingAzureServiceBus((context, cfg) =>
                     {
-                        cfg.Host(builder.Configuration.GetConnectionString("MessageBrokerConnection"));
+                        cfg.Host(brokerConnection);
                         cfg.ReceiveEndpoint("orders", e =>
                         {
                             e.ConfigureConsumer<OrderConsumer>(context);
