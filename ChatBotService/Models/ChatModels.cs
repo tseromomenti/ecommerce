@@ -10,10 +10,22 @@ public class ProductInfo
     public double RelevanceScore { get; set; }
 }
 
-public class ChatMessageModel
+public class ChatResponseModel
 {
-    public string Content { get; set; }
-    public string Role { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public string Type { get; set; } = "text";
+    public List<ProductInfo>? Data { get; set; }
+}
+
+public class ChatRequestModel
+{
+    public string Role { get; set; } = "user";
+    public List<ChatContentItem> Contents { get; set; } = new();
+}
+
+public class ChatContentItem
+{
+    public string Text { get; set; } = string.Empty;
 }
 
 public enum ChatIntent

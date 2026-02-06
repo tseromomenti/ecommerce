@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ChatRequest, ChatResponse, Product } from '../models/chat.models';
+import { Product } from '../models/chat.models';
 import { environment } from '../../environments/environment';
 
 @Injectable({

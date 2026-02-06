@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
-import { ChatMessage, Product } from '../../models/chat.models';
+import { ChatMessageModel, ChatRequestModel, ChatResponseMessage, Product } from '../../models/chat.models';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { OrderModalComponent } from '../order-modal/order-modal.component';
 
@@ -16,7 +16,7 @@ import { OrderModalComponent } from '../order-modal/order-modal.component';
 export class ChatComponent implements OnInit {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-  messages: ChatMessage[] = [];
+  messages: ChatMessageModel[] = [];
   userInput = '';
   isLoading = false;
   showOrderModal = false;
@@ -34,7 +34,7 @@ export class ChatComponent implements OnInit {
   sendMessage(): void {
     if (!this.userInput.trim() || this.isLoading) return;
 
-    const userMessage: ChatMessage = {
+    const userMessage: ChatRequestModel = {
       role: 'user',
       content: this.userInput,
     };
@@ -46,7 +46,7 @@ export class ChatComponent implements OnInit {
 
     this.chatService.sendMessage(userMessage).subscribe({
       next: (response) => {
-        const assistantMessage: ChatMessage = {
+        const assistantMessage: ChatResponseMessage = {
           content: response.content,
           role: response.role
         };
@@ -83,6 +83,7 @@ export class ChatComponent implements OnInit {
       next: () => {
         this.messages.push({
           content: `✅ Order confirmed! ${order.quantity}x ${this.selectedProduct?.productName} for $${((this.selectedProduct?.price || 0) * order.quantity).toFixed(2)}`,
+          role: 'assistant'
         });
         this.onCloseModal();
         this.scrollToBottom();
@@ -90,6 +91,7 @@ export class ChatComponent implements OnInit {
       error: () => {
         this.messages.push({
           content: "❌ Sorry, we couldn't process your order. Please try again.",
+          role: 'assistant'
         });
         this.onCloseModal();
       }

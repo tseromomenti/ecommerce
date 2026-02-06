@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ChatBotService.Models;
 using ChatBotService.Services;
-using Microsoft.Extensions.AI;
-using OllamaSharp.Models.Chat;
+using AIChatMessage = Microsoft.Extensions.AI.ChatMessage;
+using ChatResponseModel = ChatBotService.Models.ChatResponseModel;
 
 namespace ChatBotService.Controllers;
 
@@ -11,23 +11,16 @@ namespace ChatBotService.Controllers;
 public class ChatController(IChatService chatService) : ControllerBase
 {
     [HttpPost("message")]
-    public async Task<ActionResult<ChatMessageModel>> SendMessage([FromBody] ChatMessageModel message)
+    public async Task<ActionResult<ChatResponseModel>> SendMessage([FromBody] AIChatMessage message)
     {
-        var lastMessage = message.Content;
+        var lastMessage = message.Contents[^1].ToString();
         if (string.IsNullOrWhiteSpace(lastMessage))
         {
             return BadRequest("Message cannot be empty");
         }
 
         var response = await chatService.ProcessMessageAsync(lastMessage, null);
-
-        var responseMessage = new ChatMessageModel
-        {
-            Content = response.Text,
-            Role = "assistant"
-        };
-
-        return Ok(responseMessage);
+        return Ok(response);
     }
 }
 

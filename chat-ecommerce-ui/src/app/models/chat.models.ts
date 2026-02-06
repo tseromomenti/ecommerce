@@ -7,18 +7,16 @@ export interface Product {
   relevanceScore?: number;
 }
 
-export interface ChatMessage {
-  role?: 'user' | 'assistant';
+export interface ChatMessageModel {
   content: string;
+  role: 'user' | 'assistant';
 }
 
-export interface ChatRequest {
-  message: string;
-  history: ChatMessage[];
-}
-
-export interface ChatResponse {
-  message: string;
-  type: 'text' | 'products';
+export interface ChatResponseMessage extends ChatMessageModel {
+  type?: 'text' | 'products';
   data?: Product[];
+}
+
+export interface ChatRequestModel extends ChatMessageModel {
+
 }
