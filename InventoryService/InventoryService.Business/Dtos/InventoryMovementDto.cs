@@ -7,7 +7,7 @@ namespace InventoryService.Business.Entities
         public string? Id { get; set; } // MongoDB ObjectId
         public int OrderId { get; set; }
         public int ProductId { get; set; }
-        public string ProductName { get; set; }
+        public string ProductName { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

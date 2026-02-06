@@ -16,7 +16,7 @@ namespace Ecommerce.Library.Dtos
 
         [Required]
         [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters")]
-        public string ProductName { get; set; }
+        public string ProductName { get; set; } = string.Empty;
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than 0")]

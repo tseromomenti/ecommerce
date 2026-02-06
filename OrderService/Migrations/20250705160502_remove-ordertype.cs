@@ -5,7 +5,7 @@
 namespace OrderService.Migrations
 {
     /// <inheritdoc />
-    public partial class removeordertype : Migration
+    public partial class RemoveOrderType : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

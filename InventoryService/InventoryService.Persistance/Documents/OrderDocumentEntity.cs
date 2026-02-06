@@ -15,7 +15,7 @@ namespace InventoryService.Persistance.Documents
         public int OrderId { get; set; }
 
         [BsonElement("productName")]
-        public string ProductName { get; set; }
+        public string ProductName { get; set; } = string.Empty;
 
         [BsonElement("quantity")]
         public int Quantity { get; set; }
@@ -31,6 +31,6 @@ namespace InventoryService.Persistance.Documents
         public EventType MovementType { get; set; }
 
         [BsonElement("metadata")]
-        public Dictionary<string, object> Metadata { get; set; } // Customer info, reason, etc.
+        public Dictionary<string, object> Metadata { get; set; } = new(); // Customer info, reason, etc.
     }
 }

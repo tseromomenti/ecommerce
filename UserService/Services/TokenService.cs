@@ -2,20 +2,22 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
+using Ecommerce.ServiceDefaults.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Entities;
 
 namespace UserService.Services;
 
-public class TokenService(IConfiguration configuration) : ITokenService
+public class TokenService(IOptions<JwtSettings> jwtOptions) : ITokenService
 {
     public Task<(string AccessToken, DateTime ExpiresAtUtc)> CreateAccessTokenAsync(ApplicationUser user, IReadOnlyCollection<string> roles)
     {
-        var issuer = configuration["Jwt:Issuer"] ?? "ECommerceOrderingSystem";
-        var audience = configuration["Jwt:Audience"] ?? "ECommerceOrderingSystem.Client";
-        var key = configuration["Jwt:SigningKey"] ?? "super-secret-dev-signing-key-change-me";
-        var expiryMinutes = int.TryParse(configuration["Jwt:AccessTokenMinutes"], out var parsed) ? parsed : 15;
+        var settings = jwtOptions.Value;
+        var issuer = settings.Issuer;
+        var audience = settings.Audience;
+        var key = settings.SigningKey;
+        var expiryMinutes = settings.AccessTokenMinutes > 0 ? settings.AccessTokenMinutes : 15;
         var expiresAtUtc = DateTime.UtcNow.AddMinutes(expiryMinutes);
 
         var claims = new List<Claim>

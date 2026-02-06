@@ -12,7 +12,7 @@ namespace OrderService.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
     [Migration("20250705160502_remove-ordertype")]
-    partial class removeordertype
+    partial class RemoveOrderType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -26,6 +26,7 @@
     <ProjectReference Include="..\InventoryService.Embedding\InventoryService.Embedding.csproj" />
     <ProjectReference Include="..\InventoryService.Business\InventoryService.Business.csproj" />
     <ProjectReference Include="..\InventoryService.Persistance\InventoryService.Persistance.csproj" />
+    <ProjectReference Include="..\..\Ecommerce.ServiceDefaults\Ecommerce.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

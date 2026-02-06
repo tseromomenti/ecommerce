@@ -99,10 +99,18 @@ namespace OrderService.Controllers
         public async Task<IActionResult> CancelOrder(int id)
         {
             var order = await orderRepository.GetOrderByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {id} not found");
+            }
+
+            var deleted = await orderRepository.DeleteOrderAsync(id);
+            if (!deleted)
+            {
+                return NotFound($"Order with ID {id} not found");
+            }
 
             await producer.SendOrderDeletedMessageAsync(order);
-
-            await orderRepository.DeleteOrderAsync(id);
 
             return NoContent();
         }

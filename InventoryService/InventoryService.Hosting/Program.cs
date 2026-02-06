@@ -15,12 +15,9 @@ namespace InventoryService.Hosting
         {
             var builder = Host.CreateApplicationBuilder(args);
 
-            // Register business services
-            builder.Services.AddBusinessServices(builder);
+            builder.Services.AddBusinessServices();
             builder.Services.AddEmbeddingServices(builder);
-            builder.Services.AddPersistance(builder);
-
-            builder.Logging.AddSerilog();
+            builder.Services.AddPersistence(builder);
 
             builder.Services.AddMassTransit(x =>
             {
@@ -61,6 +58,7 @@ namespace InventoryService.Hosting
                 .Enrich.FromLogContext()
                 .CreateLogger();
 
+            builder.Logging.ClearProviders();
             builder.Logging.AddSerilog(logger);
 
             var host = builder.Build();

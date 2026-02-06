@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
+    <ProjectReference Include="..\Ecommerce.ServiceDefaults\Ecommerce.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

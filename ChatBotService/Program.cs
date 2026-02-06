@@ -1,7 +1,6 @@
 using ChatBotService.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Ecommerce.ServiceDefaults;
+using Ecommerce.ServiceDefaults.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,34 +17,9 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var issuer = builder.Configuration["Jwt:Issuer"] ?? "ECommerceOrderingSystem";
-        var audience = builder.Configuration["Jwt:Audience"] ?? "ECommerceOrderingSystem.Client";
-        var key = builder.Configuration["Jwt:SigningKey"] ?? "super-secret-dev-signing-key-change-me";
-
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-            ClockSkew = TimeSpan.FromSeconds(30)
-        };
-    });
-builder.Services.AddAuthorization();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+builder.Services.AddHealthChecks();
+builder.Services.AddEcommerceJwtAuthentication(builder.Configuration);
+builder.Services.AddEcommerceCors(builder.Configuration);
 
 var app = builder.Build();
 
@@ -56,13 +30,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseEcommerceApiPipeline(ServiceDefaultsConstants.DefaultCorsPolicyName, useHttpsRedirection: true);
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

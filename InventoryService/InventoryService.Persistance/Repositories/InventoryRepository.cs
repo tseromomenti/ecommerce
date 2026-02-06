@@ -4,15 +4,13 @@ using InventoryService.Business.Interfaces;
 using InventoryService.Persistance.Dtos;
 using InventoryService.Persistance.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using ProductEntity = InventoryService.Persistance.Dtos.ProductEntity;
 
 namespace InventoryService.Persistance.Repositories
 {
     public class InventoryRepository(
         InventoryDbContext context,
-        IMapper mapper,
-        ILogger<InventoryRepository> logger)
+        IMapper mapper)
         : IInventoryRepository
     {
         public async Task<ProductDto?> GetProductByNameAsync(string productName)

@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService", "PaymentService\PaymentService.csproj", "{E13EE772-AAC5-4487-9C9B-78C7D824D2E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.ServiceDefaults", "Ecommerce.ServiceDefaults\Ecommerce.ServiceDefaults.csproj", "{DB8E11F2-2CB0-4EB8-B180-731993825821}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -384,6 +386,36 @@ Global
 		{E13EE772-AAC5-4487-9C9B-78C7D824D2E5}.Staging|x64.Build.0 = Debug|Any CPU
 		{E13EE772-AAC5-4487-9C9B-78C7D824D2E5}.Staging|x86.ActiveCfg = Debug|Any CPU
 		{E13EE772-AAC5-4487-9C9B-78C7D824D2E5}.Staging|x86.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Debug|x64.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Development|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Development|Any CPU.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Development|x64.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Development|x64.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Development|x86.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Development|x86.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Production|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Production|Any CPU.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Production|x64.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Production|x64.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Production|x86.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Production|x86.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Release|x64.ActiveCfg = Release|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Release|x64.Build.0 = Release|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Release|x86.Build.0 = Release|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Staging|Any CPU.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Staging|x64.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Staging|x64.Build.0 = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Staging|x86.ActiveCfg = Debug|Any CPU
+		{DB8E11F2-2CB0-4EB8-B180-731993825821}.Staging|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
